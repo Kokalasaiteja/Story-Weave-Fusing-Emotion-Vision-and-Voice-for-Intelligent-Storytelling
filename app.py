@@ -95,15 +95,28 @@ def generate_visual_prompt(story_text, title, genre):
 # IMAGE GENERATION (FREE + STABLE)
 # --------------------------------------------------
 def generate_image(story_text, title, genre):
-    visual_prompt = generate_visual_prompt(story_text, title, genre)
+    # Extract only the core scene
+    try:
+        story_part = story_text.split("Story:")[1][:200]
+    except:
+        story_part = story_text[:200]
 
-    final_prompt = (
-        "Ultra detailed cinematic illustration, "
-        "sharp focus, realistic lighting, digital art, "
-        + visual_prompt
+    prompt = (
+        "Ultra-realistic African lions, natural anatomy, "
+        "real lion mane, muscular body, realistic fur texture, "
+        "walking on cracked dry savanna ground, "
+        "cinematic lighting, wildlife photography style, "
+        "National Geographic, 8k detail. "
+        f"Scene context: {story_part}"
     )
 
-    encoded_prompt = urllib.parse.quote(final_prompt)
+    negative_prompt = (
+        "fantasy creature, mythical animal, cartoon, cgi, monster, "
+        "human-like face, extra limbs, distorted anatomy, blurry"
+    )
+
+    encoded_prompt = urllib.parse.quote(prompt + " --no " + negative_prompt)
+
     image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
 
     response = requests.get(image_url, timeout=60)
@@ -150,8 +163,12 @@ if st.session_state.story:
     st.write(st.session_state.story)
 
 if st.session_state.image:
-    st.subheader("🖼 Story Illustration")
-    st.image(st.session_state.image, use_column_width=True)
+    st.subheader("🖼 Generated Image")
+    st.image(
+    st.session_state.image,
+    caption=story_title,
+    width=400
+)
 
 if st.session_state.story:
     if st.button("🔊 Read Aloud Story"):
