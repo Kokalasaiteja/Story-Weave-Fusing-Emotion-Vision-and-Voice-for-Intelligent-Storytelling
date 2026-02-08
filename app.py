@@ -1,12 +1,14 @@
 import streamlit as st
 import requests
-import os
 from gtts import gTTS
 import google.generativeai as genai
 from PIL import Image
 from io import BytesIO
 import urllib.parse
 
+# --------------------------------------------------
+# SESSION STATE INIT (VERY IMPORTANT)
+# --------------------------------------------------
 if "story" not in st.session_state:
     st.session_state.story = ""
 
@@ -14,39 +16,36 @@ if "image" not in st.session_state:
     st.session_state.image = None
 
 # --------------------------------------------------
-# 1. CONFIGURATION & SECRETS
+# CONFIGURATION & SECRETS
 # --------------------------------------------------
 st.set_page_config(page_title="Story Weave", layout="centered")
 
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-HF_TOKEN = st.secrets["HF_TOKEN"]
-
 genai.configure(api_key=GEMINI_API_KEY)
 
-HF_IMAGE_MODEL = "runwayml/stable-diffusion-v1-5"
-HF_API_URL = f"https://api-inference.huggingface.co/models/{HF_IMAGE_MODEL}"
-HF_HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
-
 # --------------------------------------------------
-# 2. UI
+# UI
 # --------------------------------------------------
 st.title("📖 Story Weave")
 st.caption("Fusing Emotion, Vision & Voice for Intelligent Storytelling")
 
 story_title = st.text_input("Story Title")
-genre = st.selectbox("Genre", ["Fantasy", "Science", "Education", "Mythology", "Sci-Fi", "Drama"])
+genre = st.selectbox(
+    "Genre",
+    ["Fantasy", "Science", "Education", "Mythology", "Sci-Fi", "Drama"]
+)
 description = st.text_area("Story Description / Concept")
 
 # --------------------------------------------------
-# 3. STORY GENERATION (GEMINI)
+# STORY GENERATION (GEMINI 2.5)
 # --------------------------------------------------
 def generate_story(title, genre, description):
     model = genai.GenerativeModel("gemini-2.5-flash")
 
     prompt = f"""
-    Write a short, well-structured story in THREE sections only.
+    Write a short, engaging story in THREE sections.
 
-    Format strictly as:
+    Format EXACTLY as:
     Introduction:
     (4–5 lines)
 
@@ -60,29 +59,51 @@ def generate_story(title, genre, description):
     Genre: {genre}
     Concept: {description}
 
-    Keep total length under 250 words.
+    Keep under 250 words.
     """
 
     response = model.generate_content(prompt)
     return response.text.strip()
 
 # --------------------------------------------------
-# 4. IMAGE GENERATION (HF INFERENCE API)
+# VISUAL PROMPT GENERATION (KEY FIX 🔥)
 # --------------------------------------------------
-def generate_image(story_text):
-    try:
-        story_part = story_text.split("Story:")[1][:250]
-    except:
-        story_part = story_text[:250]
+def generate_visual_prompt(story_text, title, genre):
+    model = genai.GenerativeModel("gemini-2.5-flash")
 
-    prompt = (
-        "Stable diffusion style illustration, "
-        "cinematic lighting, highly detailed, realistic digital art, "
-        + story_part
+    prompt = f"""
+    Extract ONE cinematic visual scene from the story.
+
+    Rules:
+    - Describe only visible elements
+    - Mention characters, environment, action
+    - No narration or emotions
+    - No camera terms
+    - Max 50 words
+
+    Genre: {genre}
+    Title: {title}
+
+    Story:
+    {story_text}
+    """
+
+    response = model.generate_content(prompt)
+    return response.text.strip()
+
+# --------------------------------------------------
+# IMAGE GENERATION (FREE + STABLE)
+# --------------------------------------------------
+def generate_image(story_text, title, genre):
+    visual_prompt = generate_visual_prompt(story_text, title, genre)
+
+    final_prompt = (
+        "Ultra detailed cinematic illustration, "
+        "sharp focus, realistic lighting, digital art, "
+        + visual_prompt
     )
 
-    encoded_prompt = urllib.parse.quote(prompt)
-
+    encoded_prompt = urllib.parse.quote(final_prompt)
     image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
 
     response = requests.get(image_url, timeout=60)
@@ -94,7 +115,7 @@ def generate_image(story_text):
     return Image.open(BytesIO(response.content))
 
 # --------------------------------------------------
-# 5. AUDIO GENERATION
+# AUDIO GENERATION
 # --------------------------------------------------
 def generate_audio(text):
     tts = gTTS(text)
@@ -103,24 +124,32 @@ def generate_audio(text):
     return audio_path
 
 # --------------------------------------------------
-# 6. MAIN PIPELINE
+# MAIN PIPELINE
 # --------------------------------------------------
 if st.button("✨ Generate Story Weave"):
     if not story_title or not description:
         st.warning("Please provide story title and description.")
     else:
         with st.spinner("Generating story..."):
-            st.session_state.story = generate_story(story_title, genre, description)
+            st.session_state.story = generate_story(
+                story_title, genre, description
+            )
 
-        with st.spinner("Generating image aligned with story..."):
-            st.session_state.image = generate_image(st.session_state.story)
+        with st.spinner("Creating illustration..."):
+            st.session_state.image = generate_image(
+                st.session_state.story,
+                story_title,
+                genre
+            )
 
-# ---------------- DISPLAY ----------------
+# --------------------------------------------------
+# DISPLAY
+# --------------------------------------------------
 if st.session_state.story:
     st.subheader("📜 Generated Story")
     st.write(st.session_state.story)
 
-if "image" in st.session_state and st.session_state.image:
+if st.session_state.image:
     st.subheader("🖼 Story Illustration")
     st.image(st.session_state.image, use_column_width=True)
 
@@ -135,3 +164,4 @@ if st.session_state.story:
 # --------------------------------------------------
 st.markdown("---")
 st.caption("Story Weave • AI-powered Multimodal Storytelling")
+st.caption("Developed by Kokala Sai Teja")
