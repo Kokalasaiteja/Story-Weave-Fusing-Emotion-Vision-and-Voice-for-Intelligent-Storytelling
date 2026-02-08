@@ -12,7 +12,7 @@ from io import BytesIO
 st.set_page_config(page_title="Story Weave", layout="centered")
 
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-HF_TOKEN = st.secrets["HUGGINGFACE_API_TOKEN"]
+HF_TOKEN = st.secrets["HF_TOKEN"]
 
 genai.configure(api_key=GEMINI_API_KEY)
 
