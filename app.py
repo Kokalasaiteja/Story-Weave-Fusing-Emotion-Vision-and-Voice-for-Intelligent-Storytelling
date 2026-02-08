@@ -5,6 +5,7 @@ from gtts import gTTS
 import google.generativeai as genai
 from PIL import Image
 from io import BytesIO
+import urllib.parse
 
 if "story" not in st.session_state:
     st.session_state.story = ""
@@ -70,26 +71,24 @@ def generate_story(title, genre, description):
 # --------------------------------------------------
 def generate_image(story_text):
     try:
-        story_part = story_text.split("Story:")[1][:350]
+        story_part = story_text.split("Story:")[1][:250]
     except:
-        story_part = story_text[:350]
+        story_part = story_text[:250]
 
-    image_prompt = (
-        "High quality illustration for this story scene: "
-        + story_part +
-        ". cinematic lighting, digital art, detailed, realistic"
+    prompt = (
+        "Stable diffusion style illustration, "
+        "cinematic lighting, highly detailed, realistic digital art, "
+        + story_part
     )
 
-    payload = {"inputs": image_prompt}
-    response = requests.post(
-        HF_API_URL,
-        headers=HF_HEADERS,
-        json=payload,
-        timeout=120
-    )
+    encoded_prompt = urllib.parse.quote(prompt)
+
+    image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
+
+    response = requests.get(image_url, timeout=60)
 
     if response.status_code != 200:
-        st.warning("Image model is loading. Please click Generate again.")
+        st.error("❌ Image generation failed.")
         return None
 
     return Image.open(BytesIO(response.content))
