@@ -69,17 +69,27 @@ def generate_story(title, genre, description):
 # 4. IMAGE GENERATION (HF INFERENCE API)
 # --------------------------------------------------
 def generate_image(story_text):
+    try:
+        story_part = story_text.split("Story:")[1][:350]
+    except:
+        story_part = story_text[:350]
+
     image_prompt = (
-        "Illustration for this story: "
-        + story_text.split("Story:")[1][:400]
-        + ". cinematic lighting, digital art, detailed, realistic"
+        "High quality illustration for this story scene: "
+        + story_part +
+        ". cinematic lighting, digital art, detailed, realistic"
     )
 
     payload = {"inputs": image_prompt}
-    response = requests.post(HF_API_URL, headers=HF_HEADERS, json=payload)
+    response = requests.post(
+        HF_API_URL,
+        headers=HF_HEADERS,
+        json=payload,
+        timeout=120
+    )
 
     if response.status_code != 200:
-        st.error("❌ Image generation failed. Please try again.")
+        st.warning("Image model is loading. Please click Generate again.")
         return None
 
     return Image.open(BytesIO(response.content))
