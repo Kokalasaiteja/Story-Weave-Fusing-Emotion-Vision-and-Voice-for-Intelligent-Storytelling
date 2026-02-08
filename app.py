@@ -34,7 +34,7 @@ description = st.text_area("Story Description / Concept")
 # 3. STORY GENERATION (GEMINI)
 # --------------------------------------------------
 def generate_story(title, genre, description):
-    model = genai.GenerativeModel("gemini-pro")
+    model = genai.GenerativeModel("models/gemini-1.5-flash")
     prompt = f"""
     Create a vivid, engaging story with characters.
     Title: {title}
