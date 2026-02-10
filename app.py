@@ -13,7 +13,7 @@ import hashlib
 st.set_page_config(page_title="Story Weave", layout="centered")
 
 # --------------------------------------------------
-# SESSION STATE INIT
+# SESSION STATE
 # --------------------------------------------------
 if "story" not in st.session_state:
     st.session_state.story = ""
@@ -22,12 +22,11 @@ if "image" not in st.session_state:
     st.session_state.image = None
 
 # --------------------------------------------------
-# CONFIGURATION & SECRETS
+# CONFIG
 # --------------------------------------------------
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
 
-# Create model ONCE (best practice)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 # --------------------------------------------------
@@ -36,7 +35,7 @@ model = genai.GenerativeModel("gemini-2.5-flash")
 st.title("📖 Story Weave")
 st.caption("Fusing Emotion, Vision & Voice for Intelligent Storytelling")
 
-story_title = st.text_input("Story Title", placeholder="A Wanted Man")
+story_title = st.text_input("Story Title", placeholder="RBC and WBC")
 
 genre = st.selectbox(
     "Genre",
@@ -45,10 +44,7 @@ genre = st.selectbox(
 
 description = st.text_area(
     "Story Description / Concept",
-    placeholder=(
-        "A troubled man becomes a wanted criminal after a tragic past love "
-        "and life events slowly break his mental balance."
-    )
+    placeholder="Explain how red and white blood cells protect the human body."
 )
 
 # --------------------------------------------------
@@ -75,7 +71,7 @@ Genre:
 {genre}
 
 Concept:
-Rewrite the concept below clearly with correct grammar and better clarity.
+Rewrite the concept below clearly with correct grammar.
 
 Original Concept:
 {description}
@@ -87,7 +83,7 @@ Characters:
 2. Name:
    One short line describing the character.
 
-(Continue numbering if needed, but do not exceed 5 characters.)
+(Continue numbering if needed, max 5.)
 
 Introduction:
 (4–5 short lines)
@@ -98,30 +94,23 @@ Story:
 Conclusion:
 (3–4 short lines)
 
-Additional Rules:
-- Characters list must be numbered
-- Description must be only ONE line per character
-- Keep sentences short and clear
-- Suitable for all ages
-
-Keep the entire story under 250 words.
+Keep under 250 words.
 """
     response = model.generate_content(prompt)
     return response.text.strip()
 
-
 # --------------------------------------------------
-# VISUAL PROMPT GENERATION
+# VISUAL PROMPT (SCENE EXTRACTION)
 # --------------------------------------------------
-def generate_visual_prompt(story_text, title, genre):
+def generate_visual_prompt(story_text):
     prompt = f"""
 Extract ONE clear visual scene from the story.
 
 Rules:
 - Describe only visible elements
-- Characters, clothing, environment, action
+- Characters, environment, action
 - No emotions
-- No camera or lighting terms
+- No camera terms
 - Max 50 words
 
 Story:
@@ -131,80 +120,113 @@ Story:
     return response.text.strip()
 
 # --------------------------------------------------
+# VISUAL CATEGORY DETECTION
+# --------------------------------------------------
+def detect_visual_category(title, story):
+    t = (title + " " + story).lower()
+
+    if any(w in t for w in ["rbc", "wbc", "cell", "cells", "blood", "bacteria"]):
+        return "cells"
+    if any(w in t for w in ["man", "woman", "boy", "girl", "wanted", "person", "criminal"]):
+        return "human"
+    if any(w in t for w in ["plant", "tree", "flower", "rainbow", "forest", "garden"]):
+        return "nature"
+    if any(w in t for w in ["animal", "bird", "lion", "dog", "cat", "creature"]):
+        return "animal"
+
+    return "environment"
+
+# --------------------------------------------------
 # IMAGE GENERATION
 # --------------------------------------------------
 def generate_image(story_text, title, genre, description):
-    visual_scene = generate_visual_prompt(story_text, title, genre)
+    visual_scene = generate_visual_prompt(story_text)
+    category = detect_visual_category(title, story_text)
 
-    # Fallback protection
-    if not visual_scene or len(visual_scene) < 20:
-        visual_scene = f"{title}, {genre}, {description}"
+    base_negative = """
+blurry, low resolution, pixelated,
+distorted anatomy, extra limbs,
+text, letters, watermark, logo
+"""
 
-    # Genre-aware style hint (not forced)
-    style_hint = {
-        "Drama": "realistic cinematic style",
-        "Fantasy": "illustrated fantasy style",
-        "Sci-Fi": "cinematic sci-fi or futuristic style",
-        "Mythology": "mythological illustration",
-        "Education": "clear realistic illustration",
-        "Science": "scientific realistic visualization"
-    }.get(genre, "best suitable style")
+    if category == "cells":
+        style = """
+Microscopic educational illustration.
+Red blood cells are red and disc-shaped.
+White blood cells are white and round.
+Inside a blood vessel.
+"""
+        negative = base_negative + ", human, humanoid, arms, legs, faces"
+
+    elif category == "human":
+        style = """
+Realistic human subject.
+Single person.
+Clear facial features.
+Natural lighting.
+"""
+        negative = base_negative + ", duplicate faces, cloned people"
+
+    elif category == "nature":
+        style = """
+Beautiful natural scene.
+Plants, trees, sky, rainbow.
+Vibrant but realistic colors.
+Peaceful atmosphere.
+"""
+        negative = base_negative + ", people, faces, animals"
+
+    elif category == "animal":
+        style = """
+Single animal.
+Correct anatomy.
+Natural environment.
+"""
+        negative = base_negative + ", human face, humanoid body"
+
+    else:
+        style = """
+Clean environment scene.
+Balanced composition.
+"""
+        negative = base_negative
 
     prompt = f"""
 High quality detailed image.
-Single subject only, no duplicates.
-Clear anatomy and correct proportions.
-Sharp focus, no blur.
+Single subject or clear scene.
+Sharp focus.
 
 Scene:
 {visual_scene}
 
 Style:
-{style_hint},
-cartoon, anime, cgi, or illustration allowed if suitable,
-sharp focus,
-clean edges,
-balanced composition,
-accurate anatomy,
-consistent character appearance
+{style}
 """
 
-    negative_prompt = """
-blurry, low resolution, pixelated,
-distorted anatomy, deformed body,
-extra limbs, extra fingers,
-missing limbs, broken face,
-melted body, unnatural proportions,
-text, letters, words, typography,
-poster, banner, watermark, logo
-"""
+    encoded = urllib.parse.quote(prompt + " --no " + negative)
+    url = f"https://image.pollinations.ai/prompt/{encoded}"
 
-    encoded_prompt = urllib.parse.quote(prompt + " --no " + negative_prompt)
-    image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
-
-    response = requests.get(image_url, timeout=60)
+    response = requests.get(url, timeout=60)
     if response.status_code != 200:
-        st.error("❌ Image generation failed.")
         return None
 
     return Image.open(BytesIO(response.content))
 
 # --------------------------------------------------
-# AUDIO GENERATION
+# AUDIO
 # --------------------------------------------------
 def generate_audio(text):
     file_hash = hashlib.md5(text.encode()).hexdigest()
     audio_path = f"story_audio_{file_hash}.mp3"
-    tts = gTTS(text)
-    tts.save(audio_path)
+    gTTS(text).save(audio_path)
     return audio_path
 
 # --------------------------------------------------
-# MAIN PIPELINE
+# MAIN
 # --------------------------------------------------
 if st.button("✨ Generate Story Weave"):
     if not story_title or not description:
-        st.warning("Please provide story title and concept.")
+        st.warning("Please provide title and concept.")
     else:
         with st.spinner("Generating story..."):
             st.session_state.story = generate_story(
@@ -228,17 +250,12 @@ if st.session_state.story:
 
 if st.session_state.image:
     st.subheader("🖼 Generated Image")
-    st.image(
-        st.session_state.image,
-        caption=story_title,
-        width=420
-    )
+    st.image(st.session_state.image, caption=story_title, width=420)
 
 if st.session_state.story:
     if st.button("🔊 Read Aloud Story"):
-        with st.spinner("Generating narration..."):
-            audio_file = generate_audio(st.session_state.story)
-        st.audio(audio_file)
+        audio = generate_audio(st.session_state.story)
+        st.audio(audio)
 
 # --------------------------------------------------
 # FOOTER
