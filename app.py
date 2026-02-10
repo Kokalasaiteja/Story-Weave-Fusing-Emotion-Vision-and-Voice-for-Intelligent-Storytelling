@@ -5,9 +5,15 @@ import google.generativeai as genai
 from PIL import Image
 from io import BytesIO
 import urllib.parse
+import hashlib
 
 # --------------------------------------------------
-# SESSION STATE INIT (VERY IMPORTANT)
+# PAGE CONFIG
+# --------------------------------------------------
+st.set_page_config(page_title="Story Weave", layout="centered")
+
+# --------------------------------------------------
+# SESSION STATE INIT
 # --------------------------------------------------
 if "story" not in st.session_state:
     st.session_state.story = ""
@@ -18,10 +24,11 @@ if "image" not in st.session_state:
 # --------------------------------------------------
 # CONFIGURATION & SECRETS
 # --------------------------------------------------
-st.set_page_config(page_title="Story Weave", layout="centered")
-
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
+
+# Create model ONCE (best practice)
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 # --------------------------------------------------
 # UI
@@ -29,109 +36,136 @@ genai.configure(api_key=GEMINI_API_KEY)
 st.title("📖 Story Weave")
 st.caption("Fusing Emotion, Vision & Voice for Intelligent Storytelling")
 
-story_title = st.text_input("Story Title")
+story_title = st.text_input("Story Title", placeholder="A Wanted Man")
+
 genre = st.selectbox(
     "Genre",
     ["Fantasy", "Science", "Education", "Mythology", "Sci-Fi", "Drama"]
 )
-description = st.text_area("Story Description / Concept")
+
+description = st.text_area(
+    "Story Description / Concept",
+    placeholder=(
+        "A troubled man becomes a wanted criminal after a tragic past love "
+        "and life events slowly break his mental balance."
+    )
+)
 
 # --------------------------------------------------
-# STORY GENERATION (GEMINI 2.5)
+# STORY GENERATION
 # --------------------------------------------------
 def generate_story(title, genre, description):
-    model = genai.GenerativeModel("gemini-2.5-flash")
-
     prompt = f"""
-    Write a short, engaging story in THREE sections.
+Write a clear, emotionally engaging story suitable for children, adults, and elders.
 
-    Format EXACTLY as:
-    Introduction:
-    (4–5 lines)
+Rules:
+- Simple vocabulary
+- Short sentences
+- No graphic violence
+- No disturbing descriptions
+- Emotional but gentle tone
 
-    Story:
-    (8–10 lines)
+FORMAT EXACTLY AS:
 
-    Conclusion:
-    (3–4 lines)
+Title:
+{title}
 
-    Title: {title}
-    Genre: {genre}
-    Concept: {description}
+Genre:
+{genre}
 
-    Keep under 250 words.
-    """
+Concept:
+Rewrite the concept below clearly with correct grammar and better clarity.
 
+Original Concept:
+{description}
+
+Characters:
+(List main characters with 1-line description each)
+
+Introduction:
+(4–5 lines)
+
+Story:
+(8–10 lines)
+
+Conclusion:
+(3–4 lines)
+
+Keep the entire story under 250 words.
+"""
     response = model.generate_content(prompt)
     return response.text.strip()
 
 # --------------------------------------------------
-# VISUAL PROMPT GENERATION (KEY FIX 🔥)
+# VISUAL PROMPT GENERATION
 # --------------------------------------------------
 def generate_visual_prompt(story_text, title, genre):
-    model = genai.GenerativeModel("gemini-2.5-flash")
-
     prompt = f"""
-    Extract ONE cinematic visual scene from the story.
+Extract ONE clear visual scene from the story.
 
-    Rules:
-    - Describe only visible elements
-    - Mention characters, environment, action
-    - No narration or emotions
-    - No camera terms
-    - Max 50 words
+Rules:
+- Describe only visible elements
+- Characters, clothing, environment, action
+- No emotions
+- No camera or lighting terms
+- Max 50 words
 
-    Genre: {genre}
-    Title: {title}
-
-    Story:
-    {story_text}
-    """
-
+Story:
+{story_text}
+"""
     response = model.generate_content(prompt)
     return response.text.strip()
 
 # --------------------------------------------------
-# IMAGE GENERATION (FREE + STABLE)
+# IMAGE GENERATION
 # --------------------------------------------------
-def generate_image(story_text, title, genre):
-    # Step 1 — Get visual scene from Gemini
+def generate_image(story_text, title, genre, description):
     visual_scene = generate_visual_prompt(story_text, title, genre)
 
-    # Step 2 — Style guidance (not forced)
+    # Fallback protection
+    if not visual_scene or len(visual_scene) < 20:
+        visual_scene = f"{title}, {genre}, {description}"
+
+    # Genre-aware style hint (not forced)
+    style_hint = {
+        "Drama": "realistic cinematic style",
+        "Fantasy": "illustrated fantasy style",
+        "Sci-Fi": "cinematic sci-fi or futuristic style",
+        "Mythology": "mythological illustration",
+        "Education": "clear realistic illustration",
+        "Science": "scientific realistic visualization"
+    }.get(genre, "best suitable style")
+
     prompt = f"""
-    High quality detailed image.
-    Clear anatomy and correct proportions.
-    No blur.
+High quality detailed image.
+Clear anatomy and correct proportions.
+No blur.
 
-    Scene description:
-    {visual_scene}
+Scene:
+{visual_scene}
 
-    Style:
-    choose the most suitable style for the scene
-    (realistic, cinematic, anime, cartoon, cgi, 3d render, illustration),
-    sharp focus,
-    well-defined shapes,
-    balanced composition,
-    high detail textures,
-    clean edges,
-    accurate anatomy
-    """
+Style:
+{style_hint},
+cartoon, anime, cgi, or illustration allowed if suitable,
+sharp focus,
+clean edges,
+balanced composition,
+accurate anatomy,
+consistent character appearance
+"""
 
     negative_prompt = """
-    blurry, low resolution, pixelated,
-    distorted anatomy, deformed body,
-    extra limbs, extra fingers,
-    missing limbs, broken face,
-    melted body, unnatural proportions
-    """
+blurry, pixelated, low resolution,
+distorted anatomy, deformed body,
+extra limbs, extra fingers,
+missing limbs, broken face,
+melted features, unnatural proportions
+"""
 
     encoded_prompt = urllib.parse.quote(prompt + " --no " + negative_prompt)
-
     image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
 
     response = requests.get(image_url, timeout=60)
-
     if response.status_code != 200:
         st.error("❌ Image generation failed.")
         return None
@@ -142,8 +176,9 @@ def generate_image(story_text, title, genre):
 # AUDIO GENERATION
 # --------------------------------------------------
 def generate_audio(text):
+    file_hash = hashlib.md5(text.encode()).hexdigest()
+    audio_path = f"story_audio_{file_hash}.mp3"
     tts = gTTS(text)
-    audio_path = "story_audio.mp3"
     tts.save(audio_path)
     return audio_path
 
@@ -152,7 +187,7 @@ def generate_audio(text):
 # --------------------------------------------------
 if st.button("✨ Generate Story Weave"):
     if not story_title or not description:
-        st.warning("Please provide story title and description.")
+        st.warning("Please provide story title and concept.")
     else:
         with st.spinner("Generating story..."):
             st.session_state.story = generate_story(
@@ -163,7 +198,8 @@ if st.button("✨ Generate Story Weave"):
             st.session_state.image = generate_image(
                 st.session_state.story,
                 story_title,
-                genre
+                genre,
+                description
             )
 
 # --------------------------------------------------
@@ -176,14 +212,14 @@ if st.session_state.story:
 if st.session_state.image:
     st.subheader("🖼 Generated Image")
     st.image(
-    st.session_state.image,
-    caption=story_title,
-    width=400
-)
+        st.session_state.image,
+        caption=story_title,
+        width=420
+    )
 
 if st.session_state.story:
     if st.button("🔊 Read Aloud Story"):
-        with st.spinner("Generating voice narration..."):
+        with st.spinner("Generating narration..."):
             audio_file = generate_audio(st.session_state.story)
         st.audio(audio_file)
 
