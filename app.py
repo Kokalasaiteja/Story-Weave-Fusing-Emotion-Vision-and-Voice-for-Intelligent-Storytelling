@@ -61,9 +61,10 @@ Write a clear, emotionally engaging story suitable for children, adults, and eld
 Rules:
 - Simple vocabulary
 - Short sentences
+- Emotional but gentle tone
 - No graphic violence
 - No disturbing descriptions
-- Emotional but gentle tone
+- Use at most 5 main characters
 
 FORMAT EXACTLY AS:
 
@@ -80,21 +81,34 @@ Original Concept:
 {description}
 
 Characters:
-(List main characters with 1-line description each)
+1. Name:
+   One short line describing the character.
+
+2. Name:
+   One short line describing the character.
+
+(Continue numbering if needed, but do not exceed 5 characters.)
 
 Introduction:
-(4–5 lines)
+(4–5 short lines)
 
 Story:
-(8–10 lines)
+(8–10 short lines)
 
 Conclusion:
-(3–4 lines)
+(3–4 short lines)
+
+Additional Rules:
+- Characters list must be numbered
+- Description must be only ONE line per character
+- Keep sentences short and clear
+- Suitable for all ages
 
 Keep the entire story under 250 words.
 """
     response = model.generate_content(prompt)
     return response.text.strip()
+
 
 # --------------------------------------------------
 # VISUAL PROMPT GENERATION
@@ -138,8 +152,9 @@ def generate_image(story_text, title, genre, description):
 
     prompt = f"""
 High quality detailed image.
+Single subject only, no duplicates.
 Clear anatomy and correct proportions.
-No blur.
+Sharp focus, no blur.
 
 Scene:
 {visual_scene}
@@ -155,11 +170,13 @@ consistent character appearance
 """
 
     negative_prompt = """
-blurry, pixelated, low resolution,
+blurry, low resolution, pixelated,
 distorted anatomy, deformed body,
 extra limbs, extra fingers,
 missing limbs, broken face,
-melted features, unnatural proportions
+melted body, unnatural proportions,
+text, letters, words, typography,
+poster, banner, watermark, logo
 """
 
     encoded_prompt = urllib.parse.quote(prompt + " --no " + negative_prompt)
