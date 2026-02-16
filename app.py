@@ -149,47 +149,8 @@ distorted anatomy, extra limbs,
 text, letters, watermark, logo
 """
 
-    if category == "cells":
-        style = """
-Microscopic educational illustration.
-Red blood cells are red and disc-shaped.
-White blood cells are white and round.
-Inside a blood vessel.
-"""
-        negative = base_negative + ", human, humanoid, arms, legs, faces"
-
-    elif category == "human":
-        style = """
-Realistic human subject.
-Single person.
-Clear facial features.
-Natural lighting.
-"""
-        negative = base_negative + ", duplicate faces, cloned people"
-
-    elif category == "nature":
-        style = """
-Beautiful natural scene.
-Plants, trees, sky, rainbow.
-Vibrant but realistic colors.
-Peaceful atmosphere.
-"""
-        negative = base_negative + ", people, faces, animals"
-
-    elif category == "animal":
-        style = """
-Single animal.
-Correct anatomy.
-Natural environment.
-"""
-        negative = base_negative + ", human face, humanoid body"
-
-    else:
-        style = """
-Clean environment scene.
-Balanced composition.
-"""
-        negative = base_negative
+    style = "High quality illustration."
+    negative = base_negative
 
     prompt = f"""
 High quality detailed image.
@@ -204,13 +165,21 @@ Style:
 """
 
     encoded = urllib.parse.quote(prompt + " --no " + negative)
-    url = f"https://image.pollinations.ai/prompt/{encoded}"
+    url = f"https://image.pollinations.ai/prompt/{encoded}?width=512&height=512"
 
-    response = requests.get(url, timeout=60)
-    if response.status_code != 200:
+    try:
+        response = requests.get(url, timeout=60)
+
+        if response.status_code != 200:
+            st.error(f"Image API Error: {response.status_code}")
+            return None
+
+        img = Image.open(BytesIO(response.content))
+        return img
+
+    except Exception as e:
+        st.error(f"Image generation failed: {e}")
         return None
-
-    return Image.open(BytesIO(response.content))
 
 # --------------------------------------------------
 # AUDIO
