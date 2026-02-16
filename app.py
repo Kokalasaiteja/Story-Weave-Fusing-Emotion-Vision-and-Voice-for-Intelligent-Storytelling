@@ -165,73 +165,30 @@ def generate_image(story_text, title):
     if not visual_scene:
         return None
 
-    category = detect_visual_category(title, story_text)
+    visual_scene = visual_scene[:200]
 
-    base_negative = """
-blurry, low resolution, pixelated,
-distorted anatomy, extra limbs,
-text, letters, watermark, logo
-"""
-
-    if category == "cells":
-        style = """
-Microscopic educational illustration.
-Red blood cells are red and disc-shaped.
-White blood cells are round and larger.
-Inside a blood vessel.
-"""
-        negative = base_negative + ", human, humanoid, arms, legs, faces"
-
-    elif category == "human":
-        style = """
-Realistic human subject.
-Single person.
-Clear facial features.
-Natural appearance.
-"""
-        negative = base_negative + ", duplicate faces, cloned people"
-
-    elif category == "nature":
-        style = """
-Beautiful natural scene.
-Plants, trees, sky, rainbow.
-Vibrant realistic colors.
-"""
-        negative = base_negative + ", people, faces"
-
-    elif category == "animal":
-        style = """
-Single animal.
-Correct anatomy.
-Natural environment.
-"""
-        negative = base_negative + ", human face, humanoid body"
-
-    else:
-        style = "Clean environment scene."
-        negative = base_negative
+    base_negative = "blurry, low resolution, distorted, extra limbs, text, watermark"
 
     prompt = f"""
-High quality detailed image.
+High quality detailed illustration.
 Sharp focus.
-
-Scene:
-{visual_scene}
-
-Style:
-{style}
+Scene: {visual_scene}
 """
 
-    encoded_prompt = urllib.parse.quote(prompt + " --no " + negative)
-    image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
+    encoded_prompt = urllib.parse.quote(prompt + " --no " + base_negative)
 
-    response = requests.get(image_url, timeout=60)
+    image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=512&height=512&seed=42"
 
-    if response.status_code != 200:
-        st.error("Image generation failed.")
+    try:
+        response = requests.get(image_url, timeout=60)
+        if response.status_code == 200:
+            return Image.open(BytesIO(response.content))
+        else:
+            st.error(f"Image generation failed. Code: {response.status_code}")
+            return None
+    except Exception as e:
+        st.error(f"Image request error: {e}")
         return None
-
-    return Image.open(BytesIO(response.content))
 
 # --------------------------------------------------
 # AUDIO
