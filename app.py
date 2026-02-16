@@ -139,78 +139,48 @@ def detect_visual_category(title, story):
 # --------------------------------------------------
 # IMAGE GENERATION
 # --------------------------------------------------
-def generate_image(story_text, title, genre, description):
-    visual_scene = generate_visual_prompt(story_text)
-    category = detect_visual_category(title, story_text)
-
-    base_negative = """
-blurry, low resolution, pixelated,
-distorted anatomy, extra limbs,
-text, letters, watermark, logo
-"""
-
-    if category == "cells":
-        style = """
-Microscopic educational illustration.
-Red blood cells are red and disc-shaped.
-White blood cells are white and round.
-Inside a blood vessel.
-"""
-        negative = base_negative + ", human, humanoid, arms, legs, faces"
-
-    elif category == "human":
-        style = """
-Realistic human subject.
-Single person.
-Clear facial features.
-Natural lighting.
-"""
-        negative = base_negative + ", duplicate faces, cloned people"
-
-    elif category == "nature":
-        style = """
-Beautiful natural scene.
-Plants, trees, sky, rainbow.
-Vibrant but realistic colors.
-Peaceful atmosphere.
-"""
-        negative = base_negative + ", people, faces, animals"
-
-    elif category == "animal":
-        style = """
-Single animal.
-Correct anatomy.
-Natural environment.
-"""
-        negative = base_negative + ", human face, humanoid body"
-
-    else:
-        style = """
-Clean environment scene.
-Balanced composition.
-"""
-        negative = base_negative
-
+def generate_story(title, genre, description):
     prompt = f"""
-High quality detailed image.
-Single subject or clear scene.
-Sharp focus.
+Write a clear, emotionally engaging story suitable for children, adults, and elders.
 
-Scene:
-{visual_scene}
+Rules:
+- Simple vocabulary
+- Short sentences
+- Gentle emotional tone
+- No graphic violence
+- Use at most 5 characters
 
-Style:
-{style}
+FORMAT:
+
+Title:
+{title}
+
+Genre:
+{genre}
+
+Concept:
+Rewrite clearly.
+
+Original Concept:
+{description}
+
+Characters:
+1. Name: one short line
+2. Name: one short line
+
+Introduction:
+(4–5 lines)
+
+Story:
+(8–10 lines)
+
+Conclusion:
+(3–4 lines)
+
+Keep under 200 words.
 """
-
-    encoded = urllib.parse.quote(prompt + " --no " + negative)
-    url = f"https://image.pollinations.ai/prompt/{encoded}"
-
-    response = requests.get(url, timeout=60)
-    if response.status_code != 200:
-        return None
-
-    return Image.open(BytesIO(response.content))
+    response = safe_generate(prompt)
+    return response.text.strip()
 
 # --------------------------------------------------
 # AUDIO
