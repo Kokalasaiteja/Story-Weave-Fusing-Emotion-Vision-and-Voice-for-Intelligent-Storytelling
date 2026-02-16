@@ -2,10 +2,12 @@ import streamlit as st
 import requests
 from gtts import gTTS
 import google.generativeai as genai
+from google.api_core.exceptions import ResourceExhausted
 from PIL import Image
 from io import BytesIO
 import urllib.parse
 import hashlib
+import time
 
 # --------------------------------------------------
 # PAGE CONFIG
@@ -30,6 +32,23 @@ genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 # --------------------------------------------------
+# SAFE GEMINI CALL (Retry + Backoff)
+# --------------------------------------------------
+def safe_generate(prompt, retries=3, delay=2):
+    for attempt in range(retries):
+        try:
+            return model.generate_content(prompt)
+        except ResourceExhausted:
+            if attempt < retries - 1:
+                time.sleep(delay * (attempt + 1))
+            else:
+                st.error("⚠ API quota exceeded. Please try again later.")
+                return None
+        except Exception as e:
+            st.error(f"Unexpected error: {e}")
+            return None
+
+# --------------------------------------------------
 # UI
 # --------------------------------------------------
 st.title("📖 Story Weave")
@@ -52,96 +71,7 @@ description = st.text_area(
 # --------------------------------------------------
 def generate_story(title, genre, description):
     prompt = f"""
-Write a clear, emotionally engaging story suitable for children, adults, and elders.
-
-Rules:
-- Simple vocabulary
-- Short sentences
-- Emotional but gentle tone
-- No graphic violence
-- No disturbing descriptions
-- Use at most 5 main characters
-
-FORMAT EXACTLY AS:
-
-Title:
-{title}
-
-Genre:
-{genre}
-
-Concept:
-Rewrite the concept below clearly with correct grammar.
-
-Original Concept:
-{description}
-
-Characters:
-1. Name:
-   One short line describing the character.
-
-2. Name:
-   One short line describing the character.
-
-(Continue numbering if needed, max 5.)
-
-Introduction:
-(4–5 short lines)
-
-Story:
-(8–10 short lines)
-
-Conclusion:
-(3–4 short lines)
-
-Keep under 250 words.
-"""
-    response = model.generate_content(prompt)
-    return response.text.strip()
-
-# --------------------------------------------------
-# VISUAL PROMPT (SCENE EXTRACTION)
-# --------------------------------------------------
-def generate_visual_prompt(story_text):
-    prompt = f"""
-Extract ONE clear visual scene from the story.
-
-Rules:
-- Describe only visible elements
-- Characters, environment, action
-- No emotions
-- No camera terms
-- Max 50 words
-
-Story:
-{story_text}
-"""
-    response = model.generate_content(prompt)
-    return response.text.strip()
-
-# --------------------------------------------------
-# VISUAL CATEGORY DETECTION
-# --------------------------------------------------
-def detect_visual_category(title, story):
-    t = (title + " " + story).lower()
-
-    if any(w in t for w in ["rbc", "wbc", "cell", "cells", "blood", "bacteria"]):
-        return "cells"
-    if any(w in t for w in ["man", "woman", "boy", "girl", "wanted", "person", "criminal"]):
-        return "human"
-    if any(w in t for w in ["plant", "tree", "flower", "rainbow", "forest", "garden"]):
-        return "nature"
-    if any(w in t for w in ["animal", "bird", "lion", "dog", "cat", "creature"]):
-        return "animal"
-
-    return "environment"
-
-# --------------------------------------------------
-# IMAGE GENERATION
-# --------------------------------------------------
-def generate_story(title, genre, description):
-    prompt = f"""
-Write a clear, emotionally engaging story suitable for children, adults, and elders.
+Write a clear, emotionally engaging story suitable for all ages.
 
 Rules:
 - Simple vocabulary
@@ -179,8 +109,129 @@ Conclusion:
 
 Keep under 200 words.
 """
+
     response = safe_generate(prompt)
+    if response is None:
+        return None
+
     return response.text.strip()
+
+# --------------------------------------------------
+# VISUAL SCENE EXTRACTION
+# --------------------------------------------------
+def generate_visual_prompt(story_text):
+    prompt = f"""
+Extract ONE clear visual scene from the story.
+
+Rules:
+- Describe only visible elements
+- Characters, environment, action
+- No emotions
+- Max 40 words
+
+Story:
+{story_text}
+"""
+
+    response = safe_generate(prompt)
+    if response is None:
+        return None
+
+    return response.text.strip()
+
+# --------------------------------------------------
+# VISUAL CATEGORY DETECTION
+# --------------------------------------------------
+def detect_visual_category(title, story):
+    t = (title + " " + story).lower()
+
+    if any(w in t for w in ["rbc", "wbc", "cell", "cells", "blood", "bacteria"]):
+        return "cells"
+    if any(w in t for w in ["man", "woman", "boy", "girl", "wanted", "person", "criminal"]):
+        return "human"
+    if any(w in t for w in ["plant", "tree", "flower", "rainbow", "forest", "garden"]):
+        return "nature"
+    if any(w in t for w in ["animal", "bird", "lion", "dog", "cat", "creature"]):
+        return "animal"
+
+    return "environment"
+
+# --------------------------------------------------
+# IMAGE GENERATION
+# --------------------------------------------------
+def generate_image(story_text, title):
+    visual_scene = generate_visual_prompt(story_text)
+
+    if not visual_scene:
+        return None
+
+    category = detect_visual_category(title, story_text)
+
+    base_negative = """
+blurry, low resolution, pixelated,
+distorted anatomy, extra limbs,
+text, letters, watermark, logo
+"""
+
+    if category == "cells":
+        style = """
+Microscopic educational illustration.
+Red blood cells are red and disc-shaped.
+White blood cells are round and larger.
+Inside a blood vessel.
+"""
+        negative = base_negative + ", human, humanoid, arms, legs, faces"
+
+    elif category == "human":
+        style = """
+Realistic human subject.
+Single person.
+Clear facial features.
+Natural appearance.
+"""
+        negative = base_negative + ", duplicate faces, cloned people"
+
+    elif category == "nature":
+        style = """
+Beautiful natural scene.
+Plants, trees, sky, rainbow.
+Vibrant realistic colors.
+"""
+        negative = base_negative + ", people, faces"
+
+    elif category == "animal":
+        style = """
+Single animal.
+Correct anatomy.
+Natural environment.
+"""
+        negative = base_negative + ", human face, humanoid body"
+
+    else:
+        style = "Clean environment scene."
+        negative = base_negative
+
+    prompt = f"""
+High quality detailed image.
+Sharp focus.
+
+Scene:
+{visual_scene}
+
+Style:
+{style}
+"""
+
+    encoded_prompt = urllib.parse.quote(prompt + " --no " + negative)
+    image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
+
+    response = requests.get(image_url, timeout=60)
+
+    if response.status_code != 200:
+        st.error("Image generation failed.")
+        return None
+
+    return Image.open(BytesIO(response.content))
 
 # --------------------------------------------------
 # AUDIO
@@ -192,24 +243,19 @@ def generate_audio(text):
     return audio_path
 
 # --------------------------------------------------
-# MAIN
+# MAIN PIPELINE
 # --------------------------------------------------
 if st.button("✨ Generate Story Weave"):
     if not story_title or not description:
         st.warning("Please provide title and concept.")
     else:
         with st.spinner("Generating story..."):
-            st.session_state.story = generate_story(
-                story_title, genre, description
-            )
+            story = generate_story(story_title, genre, description)
+            st.session_state.story = story
 
-        with st.spinner("Creating illustration..."):
-            st.session_state.image = generate_image(
-                st.session_state.story,
-                story_title,
-                genre,
-                description
-            )
+        if story:
+            with st.spinner("Creating illustration..."):
+                st.session_state.image = generate_image(story, story_title)
 
 # --------------------------------------------------
 # DISPLAY
@@ -224,8 +270,8 @@ if st.session_state.image:
 
 if st.session_state.story:
     if st.button("🔊 Read Aloud Story"):
-        audio = generate_audio(st.session_state.story)
-        st.audio(audio)
+        audio_file = generate_audio(st.session_state.story)
+        st.audio(audio_file)
 
 # --------------------------------------------------
 # FOOTER
