@@ -141,44 +141,22 @@ def detect_visual_category(title, story):
 # --------------------------------------------------
 def generate_image(story_text, title, genre, description):
     visual_scene = generate_visual_prompt(story_text)
-    category = detect_visual_category(title, story_text)
 
-    base_negative = """
-blurry, low resolution, pixelated,
-distorted anatomy, extra limbs,
-text, letters, watermark, logo
-"""
+    short_prompt = visual_scene[:200]
 
-    style = "High quality illustration."
-    negative = base_negative
+    encoded = urllib.parse.quote(short_prompt)
+    url = f"https://image.pollinations.ai/prompt/{encoded}"
 
-    prompt = f"""
-High quality detailed image.
-Single subject or clear scene.
-Sharp focus.
-
-Scene:
-{visual_scene}
-
-Style:
-{style}
-"""
-
-    encoded = urllib.parse.quote(prompt + " --no " + negative)
-    url = f"https://image.pollinations.ai/prompt/{encoded}?width=512&height=512"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
 
     try:
-        response = requests.get(url, timeout=60)
-
-        if response.status_code != 200:
-            st.error(f"Image API Error: {response.status_code}")
-            return None
-
-        img = Image.open(BytesIO(response.content))
-        return img
-
+        response = requests.get(url, headers=headers, timeout=60)
+        response.raise_for_status()
+        return Image.open(BytesIO(response.content))
     except Exception as e:
-        st.error(f"Image generation failed: {e}")
+        st.error(f"Image API Error: {e}")
         return None
 
 # --------------------------------------------------
