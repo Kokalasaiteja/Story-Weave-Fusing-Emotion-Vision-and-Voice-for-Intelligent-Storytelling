@@ -142,22 +142,18 @@ def detect_visual_category(title, story):
 def generate_image(story_text, title, genre, description):
     visual_scene = generate_visual_prompt(story_text)
 
-    short_prompt = visual_scene[:200]
+    image_model = genai.GenerativeModel("gemini-2.0-flash-preview-image-generation")
 
-    encoded = urllib.parse.quote(short_prompt)
-    url = f"https://image.pollinations.ai/prompt/{encoded}"
+    response = image_model.generate_content(
+        visual_scene,
+        generation_config={"response_modalities": ["IMAGE"]}
+    )
 
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+    for part in response.candidates[0].content.parts:
+        if part.inline_data:
+            return Image.open(BytesIO(part.inline_data.data))
 
-    try:
-        response = requests.get(url, headers=headers, timeout=60)
-        response.raise_for_status()
-        return Image.open(BytesIO(response.content))
-    except Exception as e:
-        st.error(f"Image API Error: {e}")
-        return None
+    return None
 
 # --------------------------------------------------
 # AUDIO
