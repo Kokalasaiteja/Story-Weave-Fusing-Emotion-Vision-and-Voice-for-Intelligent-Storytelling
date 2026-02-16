@@ -140,32 +140,77 @@ def detect_visual_category(title, story):
 # IMAGE GENERATION
 # --------------------------------------------------
 def generate_image(story_text, title, genre, description):
-    HF_TOKEN = st.secrets["HF_TOKEN"]
-
-    API_URL = "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5"
-
-    headers = {
-        "Authorization": f"Bearer {HF_TOKEN}"
-    }
-
     visual_scene = generate_visual_prompt(story_text)
+    category = detect_visual_category(title, story_text)
 
-    payload = {
-        "inputs": visual_scene
-    }
+    base_negative = """
+blurry, low resolution, pixelated,
+distorted anatomy, extra limbs,
+text, letters, watermark, logo
+"""
 
-    try:
-        response = requests.post(API_URL, headers=headers, json=payload, timeout=120)
+    if category == "cells":
+        style = """
+Microscopic educational illustration.
+Red blood cells are red and disc-shaped.
+White blood cells are white and round.
+Inside a blood vessel.
+"""
+        negative = base_negative + ", human, humanoid, arms, legs, faces"
 
-        if response.status_code != 200:
-            st.error(f"HuggingFace Error: {response.status_code}")
-            return None
+    elif category == "human":
+        style = """
+Realistic human subject.
+Single person.
+Clear facial features.
+Natural lighting.
+"""
+        negative = base_negative + ", duplicate faces, cloned people"
 
-        return Image.open(BytesIO(response.content))
+    elif category == "nature":
+        style = """
+Beautiful natural scene.
+Plants, trees, sky, rainbow.
+Vibrant but realistic colors.
+Peaceful atmosphere.
+"""
+        negative = base_negative + ", people, faces, animals"
 
-    except Exception as e:
-        st.error(f"Image generation failed: {e}")
+    elif category == "animal":
+        style = """
+Single animal.
+Correct anatomy.
+Natural environment.
+"""
+        negative = base_negative + ", human face, humanoid body"
+
+    else:
+        style = """
+Clean environment scene.
+Balanced composition.
+"""
+        negative = base_negative
+
+    prompt = f"""
+High quality detailed image.
+Single subject or clear scene.
+Sharp focus.
+
+Scene:
+{visual_scene}
+
+Style:
+{style}
+"""
+
+    encoded = urllib.parse.quote(prompt + " --no " + negative)
+    url = f"https://image.pollinations.ai/prompt/{encoded}"
+
+    response = requests.get(url, timeout=60)
+    if response.status_code != 200:
         return None
+
+    return Image.open(BytesIO(response.content))
 
 # --------------------------------------------------
 # AUDIO
