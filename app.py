@@ -141,19 +141,45 @@ def detect_visual_category(title, story):
 # --------------------------------------------------
 def generate_image(story_text, title, genre, description):
     visual_scene = generate_visual_prompt(story_text)
+    category = detect_visual_category(title, story_text)
 
-    image_model = genai.GenerativeModel("gemini-2.0-flash-preview-image-generation")
+    base_negative = """
+blurry, low resolution, pixelated,
+distorted anatomy, extra limbs,
+text, letters, watermark, logo
+"""
 
-    response = image_model.generate_content(
-        visual_scene,
-        generation_config={"response_modalities": ["IMAGE"]}
-    )
+    style = "High quality illustration."
+    negative = base_negative
 
-    for part in response.candidates[0].content.parts:
-        if part.inline_data:
-            return Image.open(BytesIO(part.inline_data.data))
+    prompt = f"""
+High quality detailed image.
+Single subject or clear scene.
+Sharp focus.
 
-    return None
+Scene:
+{visual_scene}
+
+Style:
+{style}
+"""
+
+    encoded = urllib.parse.quote(prompt + " --no " + negative)
+    url = f"https://image.pollinations.ai/prompt/{encoded}?width=512&height=512"
+
+    try:
+        response = requests.get(url, timeout=60)
+
+        if response.status_code != 200:
+            st.error(f"Image API Error: {response.status_code}")
+            return None
+
+        img = Image.open(BytesIO(response.content))
+        return img
+
+    except Exception as e:
+        st.error(f"Image generation failed: {e}")
+        return None
 
 # --------------------------------------------------
 # AUDIO
