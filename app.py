@@ -140,42 +140,28 @@ def detect_visual_category(title, story):
 # IMAGE GENERATION
 # --------------------------------------------------
 def generate_image(story_text, title, genre, description):
+    HF_TOKEN = st.secrets["HF_TOKEN"]
+
+    API_URL = "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5"
+
+    headers = {
+        "Authorization": f"Bearer {HF_TOKEN}"
+    }
+
     visual_scene = generate_visual_prompt(story_text)
-    category = detect_visual_category(title, story_text)
 
-    base_negative = """
-blurry, low resolution, pixelated,
-distorted anatomy, extra limbs,
-text, letters, watermark, logo
-"""
-
-    style = "High quality illustration."
-    negative = base_negative
-
-    prompt = f"""
-High quality detailed image.
-Single subject or clear scene.
-Sharp focus.
-
-Scene:
-{visual_scene}
-
-Style:
-{style}
-"""
-
-    encoded = urllib.parse.quote(prompt + " --no " + negative)
-    url = f"https://image.pollinations.ai/prompt/{encoded}?width=512&height=512"
+    payload = {
+        "inputs": visual_scene
+    }
 
     try:
-        response = requests.get(url, timeout=60)
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=120)
 
         if response.status_code != 200:
-            st.error(f"Image API Error: {response.status_code}")
+            st.error(f"HuggingFace Error: {response.status_code}")
             return None
 
-        img = Image.open(BytesIO(response.content))
-        return img
+        return Image.open(BytesIO(response.content))
 
     except Exception as e:
         st.error(f"Image generation failed: {e}")
