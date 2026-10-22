@@ -458,7 +458,30 @@ div[data-baseweb="textarea"] textarea,
     -webkit-text-fill-color: {input_text} !important;
     padding: 10px 14px !important;
     resize: none !important;
-    overflow: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: thin !important;
+}}
+
+.stTextArea textarea::-webkit-scrollbar,
+div[data-testid="stTextAreaRootElement"] textarea::-webkit-scrollbar {{
+    width: 6px !important;
+}}
+
+.stTextArea textarea::-webkit-scrollbar-track,
+div[data-testid="stTextAreaRootElement"] textarea::-webkit-scrollbar-track {{
+    background: transparent !important;
+}}
+
+.stTextArea textarea::-webkit-scrollbar-thumb,
+div[data-testid="stTextAreaRootElement"] textarea::-webkit-scrollbar-thumb {{
+    background: {'rgba(0, 229, 255, 0.45)' if is_dark else 'rgba(2, 132, 199, 0.35)'} !important;
+    border-radius: 6px !important;
+}}
+
+.stTextArea textarea::-webkit-scrollbar-thumb:hover,
+div[data-testid="stTextAreaRootElement"] textarea::-webkit-scrollbar-thumb:hover {{
+    background: {'rgba(0, 229, 255, 0.75)' if is_dark else 'rgba(2, 132, 199, 0.65)'} !important;
 }}
 
 input,
@@ -1191,6 +1214,34 @@ components.html(f"""
     setTimeout(alignToggleRight, 400);
     setTimeout(alignToggleRight, 1000);
     window.addEventListener('resize', alignToggleRight);
+
+    function manageTextareaScroll() {{
+        const textareas = doc.querySelectorAll('.stTextArea textarea, div[data-testid="stTextAreaRootElement"] textarea');
+        textareas.forEach(function(ta) {{
+            function checkScroll() {{
+                if (ta.scrollHeight > ta.clientHeight + 4) {{
+                    ta.style.setProperty('overflow-y', 'auto', 'important');
+                }} else {{
+                    ta.style.setProperty('overflow-y', 'hidden', 'important');
+                }}
+            }}
+            checkScroll();
+            if (!ta.dataset.scrollManaged) {{
+                ta.dataset.scrollManaged = "true";
+                ta.addEventListener('input', checkScroll);
+                ta.addEventListener('keyup', checkScroll);
+                ta.addEventListener('change', checkScroll);
+                ta.addEventListener('paste', function() {{
+                    setTimeout(checkScroll, 50);
+                }});
+            }}
+        }});
+    }}
+    manageTextareaScroll();
+    setTimeout(manageTextareaScroll, 100);
+    setTimeout(manageTextareaScroll, 400);
+    setTimeout(manageTextareaScroll, 1000);
+    window.addEventListener('resize', manageTextareaScroll);
 }})();
 </script>
 """, height=0, width=0)
