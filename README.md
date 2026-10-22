@@ -14,7 +14,7 @@ Story Weave is architected as an **enterprise monorepo** featuring both a respon
 
 ## 🚀 Live Demo & APK Downloads
 
-- 🌐 **Web Live App**: Try the app live here: [Story Weave Live](https://ai-story-generator-with-image.streamlit.app/)
+- 🌐 **Web Live App**: Try the app live here: [Story Weave Live](https://ai-story-weave.streamlit.app/)
 - 📱 **Mobile Android APKs**: Download pre-compiled standalone release APKs directly from the repository:
 
 | Build Target | Architecture | File Size | Recommended Device | Direct File Link |
