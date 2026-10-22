@@ -262,13 +262,14 @@ def get_apk_info():
         apk_path = MEDIA_DIR / fname
         exists = apk_path.exists()
         size_bytes = apk_path.stat().st_size if exists else 0
-        size_mb = round(size_bytes / (1024 * 1024), 2)
+        size_mb = round(size_bytes / 1_000_000, 1)
         builds.append({
             "abi": abi,
             "filename": fname,
             "download_url": f"/download-apk/{fname}",
             "available": exists,
-            "size_mb": size_mb
+            "size_mb": size_mb,
+            "size_formatted": f"{size_mb} MB"
         })
     return {
         "version": "1.0.0",

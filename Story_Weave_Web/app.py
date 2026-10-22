@@ -942,12 +942,12 @@ with st.sidebar:
     if apk_v8_file.exists():
         with open(apk_v8_file, "rb") as f_v8:
             st.download_button(
-                label="📱 Download Latest APK",
+                label="📱 Download Latest APK (v8a • 35.6 MB)",
                 data=f_v8.read(),
                 file_name="StoryWeave-arm64-v8a-release.apk",
                 mime="application/vnd.android.package-archive",
                 use_container_width=True,
-                help="Download the latest v8a Android release APK"
+                help="Download the latest v8a Android release APK (35.6 MB)"
             )
 
     st.markdown("---")
@@ -1399,32 +1399,32 @@ elif st.session_state.current_nav == "About":
 # --------------------------------------------------
 st.markdown("---")
 st.markdown("#### 📦 Download Story Weave Android Mobile App")
-st.caption("Standalone offline release APKs for all Android hardware architectures:")
+st.caption("Standalone offline release APKs for all Android hardware architectures (Freshly compiled Flutter release builds):")
 col_apk1, col_apk2, col_apk3, col_apk4 = st.columns(4)
 
 with col_apk1:
     p1 = MEDIA_DIR / "app-arm64-v8a-release.apk"
     if p1.exists():
         with open(p1, "rb") as f1:
-            st.download_button("📱 ARM64-v8a (Modern)", f1.read(), "StoryWeave-arm64-v8a.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_v8")
+            st.download_button("📱 ARM64-v8a (35.6 MB)", f1.read(), "StoryWeave-arm64-v8a.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_v8")
 
 with col_apk2:
     p2 = MEDIA_DIR / "app-armeabi-v7a-release.apk"
     if p2.exists():
         with open(p2, "rb") as f2:
-            st.download_button("📱 ARMv7a (32-bit)", f2.read(), "StoryWeave-armeabi-v7a.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_v7")
+            st.download_button("📱 ARMv7a (33.1 MB)", f2.read(), "StoryWeave-armeabi-v7a.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_v7")
 
 with col_apk3:
     p3 = MEDIA_DIR / "app-x86_64-release.apk"
     if p3.exists():
         with open(p3, "rb") as f3:
-            st.download_button("💻 x86_64 (Emulators)", f3.read(), "StoryWeave-x86_64.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_x86")
+            st.download_button("💻 x86_64 (37.1 MB)", f3.read(), "StoryWeave-x86_64.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_x86")
 
 with col_apk4:
     p4 = MEDIA_DIR / "app-release.apk"
     if p4.exists():
         with open(p4, "rb") as f4:
-            st.download_button("📦 Universal Fat APK", f4.read(), "StoryWeave-Universal.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_fat")
+            st.download_button("📦 Universal Fat APK (70.5 MB)", f4.read(), "StoryWeave-Universal.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_fat")
 
 st.markdown("""
 <div class="footer-container">

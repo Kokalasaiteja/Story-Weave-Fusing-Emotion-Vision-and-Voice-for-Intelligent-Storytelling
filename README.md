@@ -19,10 +19,10 @@ Story Weave is architected as an **enterprise monorepo** featuring both a respon
 
 | Build Target | Architecture | File Size | Recommended Device | Direct File Link |
 |:---|:---|:---:|:---|:---|
-| **ARM64 (Modern)** | `arm64-v8a` | **34 MB** | Modern 64-bit Android smartphones & tablets | [Download ARM64 APK](Story_Weave_Web/media/app-arm64-v8a-release.apk) |
-| **ARMv7a (32-bit)** | `armeabi-v7a` | **32 MB** | Legacy & budget 32-bit Android devices | [Download ARMv7a APK](Story_Weave_Web/media/app-armeabi-v7a-release.apk) |
-| **x86_64 (Emulators)** | `x86_64` | **35 MB** | Android Studio Emulators & ChromeOS | [Download x86_64 APK](Story_Weave_Web/media/app-x86_64-release.apk) |
-| **Universal Fat APK** | All ABIs | **67 MB** | Universal all-in-one distribution installer | [Download Universal APK](Story_Weave_Web/media/app-release.apk) |
+| **ARM64 (Modern)** | `arm64-v8a` | **35.6 MB** | Modern 64-bit Android smartphones & tablets | [Download ARM64 APK](Story_Weave_Web/media/app-arm64-v8a-release.apk) |
+| **ARMv7a (32-bit)** | `armeabi-v7a` | **33.1 MB** | Legacy & budget 32-bit Android devices | [Download ARMv7a APK](Story_Weave_Web/media/app-armeabi-v7a-release.apk) |
+| **x86_64 (Emulators)** | `x86_64` | **37.1 MB** | Android Studio Emulators & ChromeOS | [Download x86_64 APK](Story_Weave_Web/media/app-x86_64-release.apk) |
+| **Universal Fat APK** | All ABIs | **70.5 MB** | Universal all-in-one distribution installer | [Download Universal APK](Story_Weave_Web/media/app-release.apk) |
 
 ---
 
