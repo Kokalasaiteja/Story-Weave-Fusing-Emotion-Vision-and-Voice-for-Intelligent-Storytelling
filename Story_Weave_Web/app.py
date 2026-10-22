@@ -744,10 +744,18 @@ div[data-testid="column"]:has(.st-key-btn_top_theme) {{
     align-items: center !important;
     justify-content: flex-end !important;
 }}
+div[data-testid="column"]:has(.st-key-btn_top_theme) > div {{
+    display: flex !important;
+    justify-content: flex-end !important;
+    width: 100% !important;
+}}
 .st-key-btn_top_theme {{
     display: flex !important;
     justify-content: flex-end !important;
     width: 100% !important;
+}}
+.st-key-btn_top_theme button {{
+    margin-left: auto !important;
 }}
 
 /* Custom-Coded Day / Night Switch: Vector Sun & Moon (Exact UI/UX Match with Mobile DayNightSwitch) */
