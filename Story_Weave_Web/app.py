@@ -217,9 +217,9 @@ if "visual_prompt" not in st.session_state:
 if "audio_path" not in st.session_state:
     st.session_state.audio_path = None
 if "current_title" not in st.session_state:
-    st.session_state.current_title = "RBC and WBC: Defenders of the Pulse"
+    st.session_state.current_title = ""
 if "current_desc" not in st.session_state:
-    st.session_state.current_desc = "Explain how red and white blood cells protect the human body in an engaging story."
+    st.session_state.current_desc = ""
 if "selected_story_ids" not in st.session_state:
     st.session_state.selected_story_ids = set()
 
@@ -266,10 +266,11 @@ html, body, [class*="css"], .stApp {{
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }}
 
-/* Full app container background & text */
+/* Full app container background & text with smooth 1s transition */
 .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main {{
     background: {bg_gradient} !important;
     color: {text_color} !important;
+    transition: background 1.0s ease, color 1.0s ease !important;
 }}
 
 /* All text typography */
@@ -464,10 +465,82 @@ input,
 textarea,
 div[data-baseweb="input"] input,
 div[data-baseweb="textarea"] textarea,
-textarea[data-testid="stTextArea"],
-div[data-baseweb="select"] span {{
+textarea[data-testid="stTextArea"] {{
     font-family: 'Outfit', sans-serif !important;
     font-size: 1rem !important;
+}}
+
+/* Form Labels: Bold and clearly spaced */
+div[data-testid="stTextInput"] label,
+div[data-testid="stTextInput"] label p,
+div[data-testid="stSelectbox"] label,
+div[data-testid="stSelectbox"] label p,
+div[data-testid="stTextArea"] label,
+div[data-testid="stTextArea"] label p {{
+    font-weight: 700 !important;
+    font-size: 1.02rem !important;
+    letter-spacing: 0.25px !important;
+    color: {text_color} !important;
+    margin-bottom: 6px !important;
+}}
+
+/* Ensure Genre Selectbox value ('Science', etc.) is clearly visible in Light and Dark Mode */
+div[data-baseweb="select"],
+div[data-baseweb="select"] *,
+div[data-baseweb="select"] span,
+div[data-baseweb="select"] div,
+div[data-testid="stSelectbox"] div,
+div[data-testid="stSelectbox"] span,
+div[data-baseweb="select"] [aria-selected="true"] {{
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 1rem !important;
+    color: {input_text} !important;
+    -webkit-text-fill-color: {input_text} !important;
+    font-weight: 500 !important;
+}}
+
+div[data-baseweb="select"] svg {{
+    fill: {'#94A3B8' if is_dark else '#334155'} !important;
+    color: {'#94A3B8' if is_dark else '#334155'} !important;
+}}
+
+/* Selectbox Dropdown Menu Options (BaseWeb Popover, Listbox, Option Items) */
+div[data-baseweb="popover"],
+div[data-baseweb="popover"] > div,
+div[data-baseweb="popover"] ul,
+div[data-baseweb="popover"] li,
+div[data-baseweb="popover"] [role="listbox"],
+div[data-baseweb="popover"] [role="option"],
+div[data-baseweb="popover"] div,
+div[data-baseweb="popover"] span,
+div[data-baseweb="menu"],
+li[data-baseweb="menu-item"],
+ul[role="listbox"],
+ul[role="listbox"] *,
+li[role="option"],
+li[role="option"] *,
+div[data-testid="stSelectboxVirtualDropdown"],
+div[data-testid="stSelectboxVirtualDropdown"] * {{
+    background: {'#0E1422' if is_dark else '#FFFFFF'} !important;
+    background-color: {'#0E1422' if is_dark else '#FFFFFF'} !important;
+    color: {'#F8FAFC' if is_dark else '#0F172A'} !important;
+    -webkit-text-fill-color: {'#F8FAFC' if is_dark else '#0F172A'} !important;
+}}
+
+/* Option Item Hover / Highlighted / Selected State */
+li[role="option"]:hover,
+li[role="option"]:hover *,
+li[role="option"][aria-selected="true"],
+li[role="option"][aria-selected="true"] *,
+li[role="option"][data-highlighted="true"],
+li[role="option"][data-highlighted="true"] *,
+ul[role="listbox"] li:hover,
+ul[role="listbox"] li:hover * {{
+    background: {'rgba(0, 229, 255, 0.22)' if is_dark else '#E0F2FE'} !important;
+    background-color: {'rgba(0, 229, 255, 0.22)' if is_dark else '#E0F2FE'} !important;
+    color: {'#00E5FF' if is_dark else '#0284C7'} !important;
+    -webkit-text-fill-color: {'#00E5FF' if is_dark else '#0284C7'} !important;
+    font-weight: 700 !important;
 }}
 
 input::placeholder,
@@ -662,14 +735,28 @@ div[data-testid="column"]:has(.st-key-btn_top_weave) {{
     display: flex !important;
     align-items: center !important;
 }}
+div[data-testid="column"]:has(.brand-subtitle) {{
+    display: flex !important;
+    align-items: center !important;
+}}
+div[data-testid="column"]:has(.st-key-btn_top_theme) {{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+}}
+.st-key-btn_top_theme {{
+    display: flex !important;
+    justify-content: flex-end !important;
+    width: 100% !important;
+}}
 
 /* Custom-Coded Day / Night Switch: Vector Sun & Moon (Exact UI/UX Match with Mobile DayNightSwitch) */
-.st-key-btn_top_theme button,
-.st-key-btn_top_theme button[data-testid="baseButton-secondary"],
-.st-key-btn_top_theme button[kind="secondary"],
 .st-key-btn_side_theme button,
 .st-key-btn_side_theme button[data-testid="baseButton-secondary"],
-.st-key-btn_side_theme button[kind="secondary"] {{
+.st-key-btn_side_theme button[kind="secondary"],
+.st-key-btn_top_theme button,
+.st-key-btn_top_theme button[data-testid="baseButton-secondary"],
+.st-key-btn_top_theme button[kind="secondary"] {{
     background: url('{NIGHT_SWITCH_B64 if is_dark else DAY_SWITCH_B64}') center center / contain no-repeat !important;
     background-image: url('{NIGHT_SWITCH_B64 if is_dark else DAY_SWITCH_B64}') !important;
     background-size: 100% 100% !important;
@@ -685,22 +772,22 @@ div[data-testid="column"]:has(.st-key-btn_top_weave) {{
     font-size: 0 !important;
     padding: 0 !important;
     cursor: pointer !important;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease !important;
+    transition: transform 1.0s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 1.0s ease, background 1.0s ease !important;
 }}
 
-.st-key-btn_top_theme button:hover,
-.st-key-btn_side_theme button:hover {{
+.st-key-btn_side_theme button:hover,
+.st-key-btn_top_theme button:hover {{
     transform: scale(1.08) !important;
     box-shadow: 0 6px 20px {'rgba(0, 229, 255, 0.65)' if is_dark else 'rgba(66, 179, 240, 0.65)'} !important;
 }}
 
-.st-key-btn_top_theme button:active,
-.st-key-btn_side_theme button:active {{
+.st-key-btn_side_theme button:active,
+.st-key-btn_top_theme button:active {{
     transform: scale(0.95) !important;
 }}
 
-.st-key-btn_top_theme button *,
-.st-key-btn_side_theme button * {{
+.st-key-btn_side_theme button *,
+.st-key-btn_top_theme button * {{
     display: none !important;
 }}
 
@@ -805,36 +892,172 @@ section[data-testid="stSidebar"] h4 {{
     color: {text_color} !important;
 }}
 
-/* Fixed 2-Line Sidebar Footer with Zero Bottom Space */
+/* Responsive Sidebar Footer: Moves and Resizes with Sidebar Nav */
 .sidebar-fixed-footer {{
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 21rem;
-    max-width: 100%;
-    padding: 10px 16px 8px 16px;
-    background: {'#0A0E18' if is_dark else '#FFFFFF'} !important;
-    border-top: 1px solid {'rgba(255, 255, 255, 0.08)' if is_dark else 'rgba(0, 0, 0, 0.06)'};
-    text-align: center;
-    color: {'#94A3B8' if is_dark else '#64748B'};
-    z-index: 9999;
-    box-shadow: {'0 -4px 16px rgba(0, 0, 0, 0.5)' if is_dark else '0 -4px 12px rgba(0, 0, 0, 0.04)'};
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 12px 14px 8px 14px !important;
+    margin-top: 14px !important;
+    margin-bottom: 0px !important;
+    background: {'rgba(255, 255, 255, 0.03)' if is_dark else 'rgba(0, 0, 0, 0.02)'} !important;
+    border-top: 1px solid {'rgba(255, 255, 255, 0.08)' if is_dark else 'rgba(0, 0, 0, 0.06)'} !important;
+    border-radius: 8px !important;
+    text-align: center !important;
+    color: {'#94A3B8' if is_dark else '#64748B'} !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
 }}
 
-/* Expander styling in Library */
+/* When sidebar is collapsed, minimized, or closed, hide sidebar footer completely */
+section[data-testid="stSidebar"][aria-expanded="false"] .sidebar-fixed-footer,
+[data-testid="stSidebarCollapsedControl"] ~ section[data-testid="stSidebar"] .sidebar-fixed-footer {{
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}}
+
+/* Perfectly parallel alignment for Library story item checkbox & expander header */
+div[data-testid="column"]:has(div[class*="st-key-chk_story_"]) {{
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+}}
+
+div[class*="st-key-chk_story_"] {{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 48px !important;
+    height: 48px !important;
+}}
+
+div[class*="st-key-chk_story_"] div[data-testid="stCheckbox"] {{
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}}
+
+div[class*="st-key-chk_story_"] div[data-testid="stCheckbox"] label {{
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: unset !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}}
+
+/* Expander Styling in Library: Clean Pure White in Light Mode, Sleek Obsidian in Dark Mode */
 div[data-testid="stExpander"] {{
-    background-color: {card_bg} !important;
+    background: {'rgba(18, 24, 40, 0.85)' if is_dark else '#FFFFFF'} !important;
+    background-color: {'rgba(18, 24, 40, 0.85)' if is_dark else '#FFFFFF'} !important;
     border: 1px solid {card_border} !important;
     border-radius: 14px !important;
     box-shadow: {card_shadow} !important;
+    overflow: hidden !important;
 }}
 
-/* Zero bottom padding in main container so footer sits at the very bottom */
+div[data-testid="stExpander"] details,
+div[data-testid="stExpander"] summary,
+div[data-testid="stExpander"] details summary,
+div[data-testid="stExpander"] details[open] summary,
+div[data-testid="stExpander"] details summary:focus,
+div[data-testid="stExpander"] details summary:active {{
+    background: {'rgba(18, 24, 40, 0.85)' if is_dark else '#FFFFFF'} !important;
+    background-color: {'rgba(18, 24, 40, 0.85)' if is_dark else '#FFFFFF'} !important;
+    color: {text_color} !important;
+    border-radius: 12px !important;
+    border: none !important;
+}}
+
+div[data-testid="stExpander"] summary:hover,
+div[data-testid="stExpander"] details summary:hover {{
+    background-color: {'rgba(255, 255, 255, 0.05)' if is_dark else 'rgba(2, 132, 199, 0.06)'} !important;
+}}
+
+div[data-testid="stExpander"] summary *,
+div[data-testid="stExpander"] details summary *,
+div[data-testid="stExpander"] summary p,
+div[data-testid="stExpander"] summary span {{
+    color: {text_color} !important;
+    -webkit-text-fill-color: {text_color} !important;
+    font-weight: 600 !important;
+}}
+
+div[data-testid="stExpander"] summary svg,
+div[data-testid="stExpander"] details summary svg {{
+    fill: {'#00E5FF' if is_dark else '#0284C7'} !important;
+    color: {'#00E5FF' if is_dark else '#0284C7'} !important;
+}}
+
+div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {{
+    background: {'rgba(14, 20, 36, 0.95)' if is_dark else '#FFFFFF'} !important;
+    background-color: {'rgba(14, 20, 36, 0.95)' if is_dark else '#FFFFFF'} !important;
+    border-top: 1px solid {'rgba(255, 255, 255, 0.06)' if is_dark else 'rgba(0, 0, 0, 0.06)'} !important;
+    border-radius: 0 0 14px 14px !important;
+}}
+
+/* Main Container & Footer Spacing: Pinned to bottom with zero dead space below footer */
+html, body, .stApp, [data-testid="stAppViewContainer"], section[data-testid="stMain"] {{
+    min-height: 100vh !important;
+}}
+
+[data-testid="stAppViewContainer"] > section.main {{
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    padding-bottom: 0px !important;
+    margin-bottom: 0px !important;
+}}
+
 .block-container,
 [data-testid="stAppViewBlockContainer"],
 .main .block-container {{
-    padding-bottom: 0px !important;
+    padding-top: 2.2rem !important;
+    padding-bottom: 16px !important;
     margin-bottom: 0px !important;
+    min-height: calc(100vh - 3.5rem) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-grow: 1 !important;
+    box-sizing: border-box !important;
+}}
+
+/* Ensure parent vertical block expands cleanly so margin-top: auto pushes footer to bottom without cropping */
+.block-container > div[data-testid="stVerticalBlock"]:first-child {{
+    display: flex !important;
+    flex-direction: column !important;
+    flex-grow: 1 !important;
+    min-height: calc(100vh - 6.5rem) !important;
+}}
+
+/* Push footer block to bottom, placing all remaining vertical space ABOVE the APK download section */
+div[data-testid="stVerticalBlock"] > div:has(.st-key-footer_block),
+div[data-testid="stVerticalBlock"] > div:has(.footer-container),
+div[data-testid="stVerticalBlock"] > div:has(#-download-story-weave-android-mobile-app),
+.st-key-footer_block,
+div[class*="st-key-footer_block"] {{
+    margin-top: auto !important;
+    margin-bottom: 0px !important;
+    padding-bottom: 0px !important;
+    width: 100% !important;
+}}
+
+div.element-container:has(.footer-container),
+div.stMarkdown:has(.footer-container) {{
+    margin-bottom: 0px !important;
+    overflow: visible !important;
+}}
+
+[data-testid="stBottom"],
+[data-testid="stBottom"] > div {{
+    display: none !important;
+    height: 0px !important;
+    padding: 0px !important;
+    margin: 0px !important;
 }}
 
 footer, [data-testid="stFooter"] {{
@@ -843,12 +1066,17 @@ footer, [data-testid="stFooter"] {{
 
 .footer-container {{
     text-align: center;
-    padding: 22px 0 6px 0 !important;
-    margin-top: 28px;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 10px 16px 14px 16px !important;
+    margin-top: 10px !important;
     margin-bottom: 0px !important;
     border-top: 1px solid {'rgba(255, 255, 255, 0.08)' if is_dark else 'rgba(0, 0, 0, 0.08)'};
     color: {'#94A3B8' if is_dark else '#334155'};
     font-size: 0.92rem;
+    overflow: visible !important;
+    transition: all 0.3s ease !important;
 }}
 
 .footer-container a {{
@@ -860,6 +1088,16 @@ footer, [data-testid="stFooter"] {{
 
 .footer-container a:hover {{
     color: {'#D500F9' if is_dark else '#0369A1'} !important;
+}}
+
+@media (max-width: 768px) {{
+    .brand-title {{
+        font-size: 1.8rem !important;
+    }}
+    .footer-container {{
+        font-size: 0.82rem !important;
+        padding: 16px 8px 4px 8px !important;
+    }}
 }}
 </style>
 """, unsafe_allow_html=True)
@@ -901,6 +1139,23 @@ components.html(f"""
     attachNavListeners();
     setTimeout(attachNavListeners, 400);
     setTimeout(attachNavListeners, 1000);
+
+    function pinFooterToBottom() {{
+        const el = doc.querySelector('.st-key-footer_block');
+        if (!el) return;
+        let directChild = el;
+        while (directChild && directChild.parentElement && directChild.parentElement.getAttribute('data-testid') !== 'stVerticalBlock') {{
+            directChild = directChild.parentElement;
+        }}
+        if (directChild && directChild.style) {{
+            directChild.style.setProperty('margin-top', 'auto', 'important');
+        }}
+    }}
+    pinFooterToBottom();
+    setTimeout(pinFooterToBottom, 100);
+    setTimeout(pinFooterToBottom, 400);
+    setTimeout(pinFooterToBottom, 1000);
+    window.addEventListener('resize', pinFooterToBottom);
 }})();
 </script>
 """, height=0, width=0)
@@ -917,26 +1172,29 @@ with st.sidebar:
 
     # Custom Vector Day / Night Switch in Sidebar
     st.markdown("#### 🌓 Theme Mode")
-    if st.button(" ", key="btn_side_theme", help=f"Toggle to {'Light' if is_dark else 'Dark'} Mode"):
+    if st.button(" ", key="btn_side_theme"):
         st.session_state.theme = "light" if is_dark else "dark"
+        time.sleep(1.0)
         st.rerun()
 
     st.markdown("---")
 
-    # Quick Presets (Only on Weave screen)
-    if st.session_state.current_nav == "Weave":
-        st.markdown("#### 💡 Quick Presets")
-        c1, c2 = st.columns(2)
-        if c1.button("🩸 RBC & WBC", use_container_width=True):
-            st.session_state.current_title = "RBC and WBC: Defenders of the Pulse"
-            st.session_state.current_desc = "Explain how red and white blood cells protect the human body in an engaging story."
-            st.rerun()
-        if c2.button("🌲 Clockwork", use_container_width=True):
-            st.session_state.current_title = "The Clockwork Forest"
-            st.session_state.current_desc = "A young tinkerer discovers trees made of brass and amber that chime in the morning breeze."
-            st.rerun()
+    # Quick Presets (Always visible in Sidebar Navigation)
+    st.markdown("#### 💡 Quick Presets")
+    c1, c2 = st.columns(2)
+    if c1.button("🩸 RBC & WBC", use_container_width=True):
+        st.session_state.current_title = "RBC and WBC: Defenders of the Pulse"
+        st.session_state.current_desc = "Explain how red and white blood cells protect the human body in an engaging story."
+        st.session_state.current_nav = "Weave"
+        st.rerun()
+    if c2.button("🌲 Clockwork", use_container_width=True):
+        st.session_state.current_title = "The Clockwork Forest"
+        st.session_state.current_desc = "A young tinkerer discovers trees made of brass and amber that chime in the morning breeze."
+        st.session_state.current_nav = "Weave"
+        st.rerun()
+    st.markdown("---")
 
-    # Download Latest APK (v8a) right below Quick Presets
+    # Download Latest APK (v8a) right above Footer
     st.markdown("#### 📱 Android Companion")
     apk_v8_file = MEDIA_DIR / "app-arm64-v8a-release.apk"
     if apk_v8_file.exists():
@@ -951,7 +1209,7 @@ with st.sidebar:
             )
 
     st.markdown("---")
-    # Fixed 2-Line Footer with Zero Bottom Space
+    # Sidebar Footer (Responsive, moves and collapses with navigation)
     st.markdown("""
     <div class="sidebar-fixed-footer">
         <div style="font-weight: 700; font-size: 0.85rem; letter-spacing: 0.3px;">Story Weave v1.0.0</div>
@@ -962,17 +1220,16 @@ with st.sidebar:
 # --------------------------------------------------
 # TOP NAV / HEADER (AUTO CLOSES SIDEBAR ON CLICK)
 # --------------------------------------------------
-c_head, c_nav = st.columns([3.8, 6.2], vertical_alignment="center")
+c_head, c_nav = st.columns([4.2, 5.8], vertical_alignment="center")
 with c_head:
     st.markdown("""
     <div style="padding: 0;">
         <h1 class="brand-title" style="margin: 0; line-height: 1.15;">Story Weave</h1>
-        <p class="brand-subtitle" style="margin: 4px 0 0 0; line-height: 1.2;">Fusing Emotion, Vision & Voice for Intelligent Storytelling</p>
     </div>
     """, unsafe_allow_html=True)
 
 with c_nav:
-    t1, t2, t3, t4 = st.columns([1.5, 1.5, 1.6, 0.9], vertical_alignment="center")
+    t1, t2, t3 = st.columns(3, vertical_alignment="center")
     with t1:
         if st.button("✨ Story Creator", key="btn_top_weave", use_container_width=True):
             st.session_state.current_nav = "Weave"
@@ -988,10 +1245,24 @@ with c_nav:
             st.session_state.current_nav = "About"
             st.session_state.close_sidebar_now = True
             st.rerun()
-    with t4:
-        if st.button(" ", key="btn_top_theme", help=f"Toggle to {'Light' if is_dark else 'Dark'} Mode", use_container_width=True):
-            st.session_state.theme = "light" if is_dark else "dark"
-            st.rerun()
+
+# Subtitle Row (Left: Subtitle, Right-most: Day / Night Theme Toggle Switch Pill)
+c_sub, c_toggle = st.columns([8.2, 1.8], vertical_alignment="center")
+with c_sub:
+    st.markdown("""
+    <div style="padding: 0;">
+        <p class="brand-subtitle" style="margin: 0; line-height: 1.2;">Fusing Emotion, Vision & Voice for Intelligent Storytelling</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c_toggle:
+    if st.button(" ", key="btn_top_theme"):
+        st.session_state.theme = "light" if is_dark else "dark"
+        time.sleep(1.0)
+        st.rerun()
+
+# Spacious gap below subtitle row before main interactive cards
+st.markdown('<div class="brand-subtitle-spacer" style="margin-bottom: 26px;"></div>', unsafe_allow_html=True)
 
 # --------------------------------------------------
 # STORY GENERATION ENGINE
@@ -1132,9 +1403,15 @@ def generate_audio(text):
 # SCREEN 1: WEAVE / STORY CREATOR
 # ==================================================
 if st.session_state.current_nav == "Weave":
+    # Clean space above Story Title & Genre
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
     c_in1, c_in2 = st.columns([3, 1])
     with c_in1:
-        story_title = st.text_input("Story Title", value=st.session_state.current_title, placeholder="e.g. RBC and WBC")
+        story_title = st.text_input(
+            "Story Title",
+            value=st.session_state.current_title,
+            placeholder="RBC and WBC: Defenders of the Pulse"
+        )
     with c_in2:
         genre = st.selectbox(
             "Genre",
@@ -1144,8 +1421,8 @@ if st.session_state.current_nav == "Weave":
     description = st.text_area(
         "Story Description / Concept",
         value=st.session_state.current_desc,
-        placeholder="Explain how red and white blood cells protect the human body in an engaging story...",
-        height=100
+        placeholder="Explain how red and white blood cells protect the human body in an engaging story.",
+        height=210
     )
 
     col_btn, col_spacer = st.columns([1, 1])
@@ -1247,7 +1524,7 @@ elif st.session_state.current_nav == "Library":
 
         c_bulk1, c_bulk2, c_bulk3 = st.columns([1.6, 2.2, 4.2], vertical_alignment="center")
         with c_bulk1:
-            if st.button("◻️ Deselect All" if is_all_selected else "☑️ Select All", key="btn_toggle_select_all", use_container_width=True):
+            if st.button("◻️ Deselect All" if is_all_selected else " ✅ Select All", key="btn_toggle_select_all", use_container_width=True):
                 if is_all_selected:
                     st.session_state.selected_story_ids.clear()
                     for s_id_item in all_ids:
@@ -1397,41 +1674,43 @@ elif st.session_state.current_nav == "About":
 # --------------------------------------------------
 # FOOTER (ALL APKS & DEVELOPER CONTACT WITH ZERO DEAD SPACE)
 # --------------------------------------------------
-st.markdown("---")
-st.markdown("#### 📦 Download Story Weave Android Mobile App")
-st.caption("Standalone offline release APKs for all Android hardware architectures (Freshly compiled Flutter release builds):")
-col_apk1, col_apk2, col_apk3, col_apk4 = st.columns(4)
+footer_block = st.container(key="footer_block")
+with footer_block:
+    st.markdown("---")
+    st.markdown("#### 📦 Download Story Weave Android Mobile App")
+    st.caption("Standalone offline release APKs for all Android hardware architectures (Freshly compiled Flutter release builds):")
+    col_apk1, col_apk2, col_apk3, col_apk4 = st.columns(4)
 
-with col_apk1:
-    p1 = MEDIA_DIR / "app-arm64-v8a-release.apk"
-    if p1.exists():
-        with open(p1, "rb") as f1:
-            st.download_button("📱 ARM64-v8a (35.6 MB)", f1.read(), "StoryWeave-arm64-v8a.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_v8")
+    with col_apk1:
+        p1 = MEDIA_DIR / "app-arm64-v8a-release.apk"
+        if p1.exists():
+            with open(p1, "rb") as f1:
+                st.download_button("📱 ARM64-v8a (35.6 MB)", f1.read(), "StoryWeave-arm64-v8a.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_v8")
 
-with col_apk2:
-    p2 = MEDIA_DIR / "app-armeabi-v7a-release.apk"
-    if p2.exists():
-        with open(p2, "rb") as f2:
-            st.download_button("📱 ARMv7a (33.1 MB)", f2.read(), "StoryWeave-armeabi-v7a.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_v7")
+    with col_apk2:
+        p2 = MEDIA_DIR / "app-armeabi-v7a-release.apk"
+        if p2.exists():
+            with open(p2, "rb") as f2:
+                st.download_button("📱 ARMv7a (33.1 MB)", f2.read(), "StoryWeave-armeabi-v7a.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_v7")
 
-with col_apk3:
-    p3 = MEDIA_DIR / "app-x86_64-release.apk"
-    if p3.exists():
-        with open(p3, "rb") as f3:
-            st.download_button("💻 x86_64 (37.1 MB)", f3.read(), "StoryWeave-x86_64.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_x86")
+    with col_apk3:
+        p3 = MEDIA_DIR / "app-x86_64-release.apk"
+        if p3.exists():
+            with open(p3, "rb") as f3:
+                st.download_button("💻 x86_64 (37.1 MB)", f3.read(), "StoryWeave-x86_64.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_x86")
 
-with col_apk4:
-    p4 = MEDIA_DIR / "app-release.apk"
-    if p4.exists():
-        with open(p4, "rb") as f4:
-            st.download_button("📦 Universal Fat APK (70.5 MB)", f4.read(), "StoryWeave-Universal.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_fat")
+    with col_apk4:
+        p4 = MEDIA_DIR / "app-release.apk"
+        if p4.exists():
+            with open(p4, "rb") as f4:
+                st.download_button("📦 Universal Fat APK (70.5 MB)", f4.read(), "StoryWeave-Universal.apk", "application/vnd.android.package-archive", use_container_width=True, key="ft_apk_fat")
 
-st.markdown("""
-<div class="footer-container">
-    <p style="margin-bottom: 6px;"><b>Story Weave</b> • Fusing Emotion, Vision & Voice for Intelligent Storytelling</p>
-    <p style="margin-bottom: 0px;">Developed by <b>Kokala Sai Teja</b> &nbsp;|&nbsp; 
-       <a href="https://www.linkedin.com/in/sai-teja-kokala-245a12299?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank">LinkedIn Profile</a> &nbsp;•&nbsp; 
-       <a href="mailto:kokalasaiteja@gmail.com?subject=Story%20Weave%20Inquiry">Email: kokalasaiteja@gmail.com</a>
-    </p>
-</div>
-""", unsafe_allow_html=True)
+    st.markdown("""
+    <div class="footer-container">
+        <p style="margin-bottom: 4px;"><b>Story Weave</b> • Fusing Emotion, Vision & Voice for Intelligent Storytelling</p>
+        <p style="margin-bottom: 0px;">Developed by <b>Kokala Sai Teja</b> &nbsp;|&nbsp; 
+           <a href="https://www.linkedin.com/in/sai-teja-kokala-245a12299?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank">LinkedIn Profile</a> &nbsp;•&nbsp; 
+           <a href="mailto:kokalasaiteja@gmail.com?subject=Story%20Weave%20Inquiry">Email: kokalasaiteja@gmail.com</a>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)

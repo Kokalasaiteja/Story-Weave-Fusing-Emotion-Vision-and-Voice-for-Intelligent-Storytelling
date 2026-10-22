@@ -1,5 +1,9 @@
 # 🌐 Story Weave — Web Application & Backend API
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Story_Weave_Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://ai-story-weave.streamlit.app/)
+
+- 🌐 **Live Demo Web Application**: [https://ai-story-weave.streamlit.app/](https://ai-story-weave.streamlit.app/)
+
 **Story Weave Web** is the web tier and REST API distribution hub of the Story Weave enterprise monorepo. It features a modern Python Streamlit interface infused with custom liquid-glass / dark neon cyber styling, paired with a high-performance FastAPI service for mobile synchronization and direct APK distribution.
 
 ---

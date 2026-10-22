@@ -1,6 +1,6 @@
 # 📖 Story Weave — Fusing Emotion, Vision & Voice for Intelligent Storytelling
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Story_Weave_Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://ai-story-generator-with-image.streamlit.app/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Story_Weave_Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://ai-story-weave.streamlit.app/)
 [![Flutter](https://img.shields.io/badge/Flutter-3.44.8-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Android](https://img.shields.io/badge/Android-API_24+-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://developer.android.com)
