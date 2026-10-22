@@ -1172,6 +1172,25 @@ components.html(f"""
     setTimeout(pinFooterToBottom, 400);
     setTimeout(pinFooterToBottom, 1000);
     window.addEventListener('resize', pinFooterToBottom);
+
+    function alignToggleRight() {{
+        const btn = doc.querySelector('.st-key-btn_top_theme button');
+        const stBtn = doc.querySelector('.st-key-btn_top_theme div[data-testid="stButton"]') || doc.querySelector('.st-key-btn_top_theme .stButton');
+        if (stBtn) {{
+            stBtn.style.setProperty('display', 'flex', 'important');
+            stBtn.style.setProperty('justify-content', 'flex-end', 'important');
+            stBtn.style.setProperty('width', '100%', 'important');
+        }}
+        if (btn) {{
+            btn.style.setProperty('margin-left', 'auto', 'important');
+            btn.style.setProperty('margin-right', '0px', 'important');
+        }}
+    }}
+    alignToggleRight();
+    setTimeout(alignToggleRight, 100);
+    setTimeout(alignToggleRight, 400);
+    setTimeout(alignToggleRight, 1000);
+    window.addEventListener('resize', alignToggleRight);
 }})();
 </script>
 """, height=0, width=0)
