@@ -1186,7 +1186,7 @@ if st.session_state.current_nav == "Weave":
         with c_res_text:
             st.subheader("📜 Generated Narrative")
             st.markdown(f"**Title:** {story_title} &nbsp;|&nbsp; **Genre:** `{genre}`")
-            st.text_area("Story Output", value=st.session_state.story, height=360, label_visibility="collapsed")
+            st.text_area("Story Output", value=st.session_state.story, height=470, label_visibility="collapsed")
 
             st.markdown("#### 🔊 Audio Narration")
             if st.button("🎙️ Generate & Play Narration"):
@@ -1305,7 +1305,7 @@ elif st.session_state.current_nav == "Library":
                         </div>
                         """, unsafe_allow_html=True)
 
-                        st.text_area("Story", value=item.get("story", ""), height=200, key=f"txt_{s_id}", label_visibility="collapsed")
+                        st.text_area("Story", value=item.get("story", ""), height=470, key=f"txt_{s_id}", label_visibility="collapsed")
                         
                         # Audio Playback & Single Delete Option
                         st.markdown("##### 🎙️ Voice Narration Audio")
