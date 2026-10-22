@@ -1549,6 +1549,7 @@ elif st.session_state.current_nav == "Library":
         and (selected_genre == "All" or s.get("genre") == selected_genre)
     ]
 
+
     if not filtered:
         st.info("No saved stories match your search criteria. Generate one in the Creator!")
     else:
