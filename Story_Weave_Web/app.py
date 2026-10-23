@@ -91,6 +91,11 @@ NIGHT_SWITCH_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="68" height=
 DAY_SWITCH_B64 = f"data:image/svg+xml;base64,{base64.b64encode(DAY_SWITCH_SVG.strip().encode('utf-8')).decode('utf-8')}"
 NIGHT_SWITCH_B64 = f"data:image/svg+xml;base64,{base64.b64encode(NIGHT_SWITCH_SVG.strip().encode('utf-8')).decode('utf-8')}"
 
+LOGO_B64 = ""
+if LOGO_PATH.exists():
+    with open(LOGO_PATH, "rb") as f_logo:
+        LOGO_B64 = base64.b64encode(f_logo.read()).decode("utf-8")
+
 # --------------------------------------------------
 # PERSISTENT STORIES STORAGE (JSON DATABASE)
 # --------------------------------------------------
@@ -627,6 +632,73 @@ div[data-testid="stHorizontalBlock"] div.stButton > button {{
     transform: translateY(-2px) scale(1.03) !important;
 }}
 
+/* Mobile Drawer Nav Items (Image 2 Match) */
+.st-key-btn_mob_{active_key_suffix} button,
+.st-key-btn_mob_{active_key_suffix} button[data-testid="baseButton-secondary"],
+.st-key-btn_mob_{active_key_suffix} button[kind="secondary"] {{
+    background: {'rgba(0, 229, 255, 0.12)' if is_dark else '#E0F2FE'} !important;
+    background-color: {'rgba(0, 229, 255, 0.12)' if is_dark else '#E0F2FE'} !important;
+    color: {'#38BDF8' if is_dark else '#0284C7'} !important;
+    border: 1.5px solid {'#38BDF8' if is_dark else '#38BDF8'} !important;
+    border-radius: 14px !important;
+    font-weight: 700 !important;
+    font-size: 1.02rem !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding: 12px 18px !important;
+    margin-bottom: 8px !important;
+    box-shadow: 0 2px 10px {'rgba(0, 229, 255, 0.2)' if is_dark else 'rgba(2, 132, 199, 0.15)'} !important;
+    position: relative !important;
+    text-align: left !important;
+    width: 100% !important;
+}}
+
+.st-key-btn_mob_{active_key_suffix} button::after {{
+    content: "" !important;
+    display: block !important;
+    width: 9px !important;
+    height: 9px !important;
+    border-radius: 50% !important;
+    background: {'#38BDF8' if is_dark else '#0284C7'} !important;
+    box-shadow: 0 0 8px {'#38BDF8' if is_dark else '#0284C7'} !important;
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+}}
+
+.st-key-btn_mob_weave:not(.st-key-btn_mob_{active_key_suffix}) button,
+.st-key-btn_mob_lib:not(.st-key-btn_mob_{active_key_suffix}) button,
+.st-key-btn_mob_abt:not(.st-key-btn_mob_{active_key_suffix}) button,
+.st-key-btn_mob_weave:not(.st-key-btn_mob_{active_key_suffix}) button[data-testid="baseButton-secondary"],
+.st-key-btn_mob_lib:not(.st-key-btn_mob_{active_key_suffix}) button[data-testid="baseButton-secondary"],
+.st-key-btn_mob_abt:not(.st-key-btn_mob_{active_key_suffix}) button[data-testid="baseButton-secondary"],
+.st-key-btn_mob_weave:not(.st-key-btn_mob_{active_key_suffix}) button[kind="secondary"],
+.st-key-btn_mob_lib:not(.st-key-btn_mob_{active_key_suffix}) button[kind="secondary"],
+.st-key-btn_mob_abt:not(.st-key-btn_mob_{active_key_suffix}) button[kind="secondary"] {{
+    background: transparent !important;
+    background-color: transparent !important;
+    color: {'#CBD5E1' if is_dark else '#334155'} !important;
+    border: none !important;
+    border-radius: 14px !important;
+    font-weight: 600 !important;
+    font-size: 1.02rem !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding: 12px 18px !important;
+    margin-bottom: 8px !important;
+    box-shadow: none !important;
+    text-align: left !important;
+    width: 100% !important;
+}}
+
+.st-key-btn_mob_weave:not(.st-key-btn_mob_{active_key_suffix}) button:hover,
+.st-key-btn_mob_lib:not(.st-key-btn_mob_{active_key_suffix}) button:hover,
+.st-key-btn_mob_abt:not(.st-key-btn_mob_{active_key_suffix}) button:hover {{
+    background: {'rgba(255, 255, 255, 0.05)' if is_dark else 'rgba(0, 0, 0, 0.03)'} !important;
+    color: {'#38BDF8' if is_dark else '#0284C7'} !important;
+}}
+
 /* Secondary Buttons */
 button[data-testid="baseButton-secondary"],
 button[kind="secondary"] {{
@@ -795,7 +867,10 @@ div[data-testid="column"]:has(.st-key-btn_top_theme) > div {{
 .st-key-btn_side_theme button[kind="secondary"],
 .st-key-btn_top_theme button,
 .st-key-btn_top_theme button[data-testid="baseButton-secondary"],
-.st-key-btn_top_theme button[kind="secondary"] {{
+.st-key-btn_top_theme button[kind="secondary"],
+.st-key-btn_mob_theme button,
+.st-key-btn_mob_theme button[data-testid="baseButton-secondary"],
+.st-key-btn_mob_theme button[kind="secondary"] {{
     background: url('{NIGHT_SWITCH_B64 if is_dark else DAY_SWITCH_B64}') center center / contain no-repeat !important;
     background-image: url('{NIGHT_SWITCH_B64 if is_dark else DAY_SWITCH_B64}') !important;
     background-size: 100% 100% !important;
@@ -815,18 +890,21 @@ div[data-testid="column"]:has(.st-key-btn_top_theme) > div {{
 }}
 
 .st-key-btn_side_theme button:hover,
-.st-key-btn_top_theme button:hover {{
+.st-key-btn_top_theme button:hover,
+.st-key-btn_mob_theme button:hover {{
     transform: scale(1.08) !important;
     box-shadow: 0 6px 20px {'rgba(0, 229, 255, 0.65)' if is_dark else 'rgba(66, 179, 240, 0.65)'} !important;
 }}
 
 .st-key-btn_side_theme button:active,
-.st-key-btn_top_theme button:active {{
+.st-key-btn_top_theme button:active,
+.st-key-btn_mob_theme button:active {{
     transform: scale(0.95) !important;
 }}
 
 .st-key-btn_side_theme button *,
-.st-key-btn_top_theme button * {{
+.st-key-btn_top_theme button *,
+.st-key-btn_mob_theme button * {{
     display: none !important;
 }}
 
@@ -1129,13 +1207,304 @@ footer, [data-testid="stFooter"] {{
     color: {'#D500F9' if is_dark else '#0369A1'} !important;
 }}
 
-@media (max-width: 768px) {{
-    .brand-title {{
-        font-size: 1.8rem !important;
+/* Desktop / Laptop (> 768px): Hide Mobile Drawer, Show Desktop Sidebar */
+@media (min-width: 769px) {{
+    .st-key-mobile_drawer_box {{
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        pointer-events: none !important;
     }}
+    .st-key-desktop_sidebar_box {{
+        display: block !important;
+    }}
+}}
+
+/* Mobile & Touch Devices (<= 768px): Match Image 2 Drawer, Hide Desktop Sidebar, Fix Checkbox */
+@media (max-width: 768px) {{
+    /* Hide Desktop Sidebar */
+    .st-key-desktop_sidebar_box {{
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        pointer-events: none !important;
+    }}
+
+    /* Show Mobile Drawer */
+    .st-key-mobile_drawer_box {{
+        display: block !important;
+    }}
+
+    /* Mobile Drawer Header (Image 2) */
+    .mobile-drawer-header {{
+        display: flex !important;
+        align-items: center !important;
+        gap: 14px !important;
+        padding: 16px 4px 14px 4px !important;
+        margin-top: 10px !important;
+    }}
+
+    .mobile-drawer-avatar {{
+        width: 52px !important;
+        height: 52px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
+        border: 2px solid {'rgba(255, 255, 255, 0.15)' if is_dark else '#FFFFFF'} !important;
+        flex-shrink: 0 !important;
+    }}
+
+    .mobile-drawer-title-box {{
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+    }}
+
+    .mobile-drawer-title {{
+        font-family: 'Outfit', sans-serif !important;
+        font-size: 1.45rem !important;
+        font-weight: 800 !important;
+        background: {'linear-gradient(135deg, #00E5FF, #D500F9)' if is_dark else 'linear-gradient(135deg, #0284C7, #9333EA)'} !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        line-height: 1.2 !important;
+    }}
+
+    .mobile-drawer-subtitle {{
+        font-size: 0.84rem !important;
+        font-weight: 500 !important;
+        color: {'#94A3B8' if is_dark else '#64748B'} !important;
+        margin-top: 2px !important;
+    }}
+
+    .mobile-drawer-divider {{
+        height: 1px !important;
+        background: {'rgba(255, 255, 255, 0.1)' if is_dark else '#E2E8F0'} !important;
+        margin: 12px 0 16px 0 !important;
+        width: 100% !important;
+    }}
+
+    /* Mobile Drawer Theme Toggle Card (Image 2 - Strict Horizontal Layout) */
+    div[data-testid="stHorizontalBlock"]:has(.st-key-btn_mob_theme) {{
+        background: {'rgba(255, 255, 255, 0.05)' if is_dark else '#F1F5F9'} !important;
+        border-radius: 16px !important;
+        padding: 10px 16px !important;
+        margin: 8px 0 16px 0 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        border: 1px solid {'rgba(255, 255, 255, 0.08)' if is_dark else 'rgba(0, 0, 0, 0.05)'} !important;
+    }}
+
+    div[data-testid="stHorizontalBlock"]:has(.st-key-btn_mob_theme) > div {{
+        min-width: unset !important;
+    }}
+
+    div[data-testid="stHorizontalBlock"]:has(.st-key-btn_mob_theme) > div:first-child {{
+        flex: 1 1 auto !important;
+        width: auto !important;
+        max-width: calc(100% - 76px) !important;
+        display: flex !important;
+        align-items: center !important;
+    }}
+
+    div[data-testid="stHorizontalBlock"]:has(.st-key-btn_mob_theme) > div:last-child {{
+        flex: 0 0 72px !important;
+        width: 72px !important;
+        min-width: 72px !important;
+        max-width: 72px !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+    }}
+
+    .mob-theme-label-box {{
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        font-size: 1.02rem !important;
+        font-weight: 700 !important;
+        color: {'#F8FAFC' if is_dark else '#1E293B'} !important;
+    }}
+
+    .mob-theme-icon {{
+        font-size: 1.25rem !important;
+        color: {'#38BDF8' if is_dark else '#0284C7'} !important;
+    }}
+
+    /* Mobile Drawer Footer (Image 2) */
+    .mobile-drawer-footer {{
+        text-align: center !important;
+        padding: 24px 8px 12px 8px !important;
+        margin-top: auto !important;
+    }}
+
+    .mob-foot-title {{
+        font-family: 'Outfit', sans-serif !important;
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
+        color: {'#FFFFFF' if is_dark else '#1E293B'} !important;
+        letter-spacing: 0.2px !important;
+    }}
+
+    .mob-foot-sub {{
+        font-size: 0.8rem !important;
+        font-weight: 500 !important;
+        color: {'#94A3B8' if is_dark else '#64748B'} !important;
+        margin-top: 4px !important;
+    }}
+
+    /* Requirement 4: Top Navigation Buttons Disappear on Mobile */
+    .st-key-btn_top_weave,
+    .st-key-btn_top_lib,
+    .st-key-btn_top_abt,
+    div[data-testid="column"]:has(.st-key-btn_top_weave),
+    div[data-testid="column"]:has(.st-key-btn_top_lib),
+    div[data-testid="column"]:has(.st-key-btn_top_abt) {{
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        pointer-events: none !important;
+    }}
+
+    /* Top Header Mobile Brand & Switch Alignment */
+    .brand-title {{
+        font-size: 1.65rem !important;
+        line-height: 1.2 !important;
+    }}
+
+    .brand-subtitle {{
+        font-size: 0.82rem !important;
+        line-height: 1.3 !important;
+        padding-right: 76px !important;
+    }}
+
+    div[data-testid="column"]:has(.st-key-btn_top_theme) {{
+        position: absolute !important;
+        top: 14px !important;
+        right: 14px !important;
+        width: auto !important;
+        z-index: 9999 !important;
+    }}
+
+    .block-container {{
+        padding-top: 1rem !important;
+        padding-left: 0.85rem !important;
+        padding-right: 0.85rem !important;
+        padding-bottom: 2rem !important;
+    }}
+
+    /* Requirement 3: Smooth Checkbox Clicking on Mobile */
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) {{
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }}
+
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div {{
+        min-width: unset !important;
+    }}
+
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div:first-child {{
+        flex: 0 0 46px !important;
+        min-width: 46px !important;
+        width: 46px !important;
+        max-width: 46px !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        padding-top: 4px !important;
+    }}
+
+    div[class*="st-key-chk_story_"] {{
+        width: 46px !important;
+        height: 46px !important;
+        min-height: 46px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }}
+
+    div[class*="st-key-chk_story_"] div[data-testid="stCheckbox"] {{
+        width: 46px !important;
+        height: 46px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }}
+
+    div[class*="st-key-chk_story_"] div[data-testid="stCheckbox"] label {{
+        width: 46px !important;
+        height: 46px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        touch-action: manipulation !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }}
+
+    div[class*="st-key-chk_story_"] div[data-testid="stCheckbox"] input[type="checkbox"] {{
+        width: 22px !important;
+        height: 22px !important;
+        cursor: pointer !important;
+        touch-action: manipulation !important;
+    }}
+
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div:nth-child(2) {{
+        flex: 1 1 calc(100% - 54px) !important;
+        width: calc(100% - 54px) !important;
+        max-width: calc(100% - 54px) !important;
+        min-width: 0 !important;
+    }}
+
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div:nth-child(2) div[data-testid="stExpander"] {{
+        width: 100% !important;
+    }}
+
+    /* Expander Content Responsiveness on Mobile: Stack text and image vertically */
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {{
+        flex-direction: column !important;
+    }}
+
+    div[data-testid="stExpander"] div[data-testid="column"],
+    div[data-testid="stExpander"] div[data-testid="stColumn"] {{
+        width: 100% !important;
+        min-width: 100% !important;
+    }}
+
     .footer-container {{
         font-size: 0.82rem !important;
         padding: 16px 8px 4px 8px !important;
+    }}
+}}
+
+/* Tablet Responsiveness (769px to 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {{
+    .brand-title {{
+        font-size: 1.85rem !important;
+    }}
+    .st-key-btn_top_weave button,
+    .st-key-btn_top_lib button,
+    .st-key-btn_top_abt button {{
+        font-size: 0.88rem !important;
+        padding: 8px 12px !important;
+    }}
+    .block-container {{
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
     }}
 }}
 </style>
@@ -1164,7 +1533,10 @@ components.html(f"""
     }}
 
     function attachNavListeners() {{
-        const selectors = ['.st-key-btn_top_weave button', '.st-key-btn_top_lib button', '.st-key-btn_top_abt button'];
+        const selectors = [
+            '.st-key-btn_top_weave button', '.st-key-btn_top_lib button', '.st-key-btn_top_abt button',
+            '.st-key-btn_mob_weave button', '.st-key-btn_mob_lib button', '.st-key-btn_mob_abt button'
+        ];
         selectors.forEach(function(sel) {{
             const btn = doc.querySelector(sel);
             if (btn && !btn.dataset.sidebarAttached) {{
@@ -1250,58 +1622,115 @@ components.html(f"""
 # SIDEBAR
 # --------------------------------------------------
 with st.sidebar:
-    st.image(str(LOGO_PATH) if LOGO_PATH.exists() else "https://via.placeholder.com/150", width=120)
-    st.markdown("### 📖 Story Weave")
-    st.caption("Fusing Emotion, Vision & Voice")
+    # --------------------------------------------------
+    # MOBILE / TABLET NAVIGATION DRAWER (MATCHES IMAGE 2)
+    # --------------------------------------------------
+    with st.container(key="mobile_drawer_box"):
+        st.markdown(f"""
+        <div class="mobile-drawer-header">
+            <img src="data:image/png;base64,{LOGO_B64}" class="mobile-drawer-avatar" alt="Story Weave" />
+            <div class="mobile-drawer-title-box">
+                <div class="mobile-drawer-title">Story Weave</div>
+                <div class="mobile-drawer-subtitle">Multimodal AI Companion</div>
+            </div>
+        </div>
+        <div class="mobile-drawer-divider"></div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("---")
+        if st.button("✨ Story Creator", key="btn_mob_weave", use_container_width=True):
+            st.session_state.current_nav = "Weave"
+            st.session_state.close_sidebar_now = True
+            st.rerun()
+        if st.button("📚 Story Library", key="btn_mob_lib", use_container_width=True):
+            st.session_state.current_nav = "Library"
+            st.session_state.close_sidebar_now = True
+            st.rerun()
+        if st.button("🌟 Motive & Vision", key="btn_mob_abt", use_container_width=True):
+            st.session_state.current_nav = "About"
+            st.session_state.close_sidebar_now = True
+            st.rerun()
 
-    # Custom Vector Day / Night Switch in Sidebar
-    st.markdown("#### 🌓 Theme Mode")
-    if st.button(" ", key="btn_side_theme"):
-        st.session_state.theme = "light" if is_dark else "dark"
-        time.sleep(1.0)
-        st.rerun()
+        st.markdown("""
+        <div class="mobile-drawer-divider"></div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("---")
+        c_mob_th_lbl, c_mob_th_btn = st.columns([0.62, 0.38], vertical_alignment="center")
+        with c_mob_th_lbl:
+            st.markdown(f"""
+            <div class="mob-theme-label-box">
+                <span class="mob-theme-icon">{'☀️' if not is_dark else '🌙'}</span>
+                <span class="mob-theme-text">{'Light Mode' if not is_dark else 'Dark Mode'}</span>
+            </div>
+            """, unsafe_allow_html=True)
+        with c_mob_th_btn:
+            if st.button(" ", key="btn_mob_theme"):
+                st.session_state.theme = "light" if is_dark else "dark"
+                time.sleep(0.3)
+                st.rerun()
 
-    # Quick Presets (Always visible in Sidebar Navigation)
-    st.markdown("#### 💡 Quick Presets")
-    c1, c2 = st.columns(2)
-    if c1.button("🩸 RBC & WBC", use_container_width=True):
-        st.session_state.current_title = "RBC and WBC: Defenders of the Pulse"
-        st.session_state.current_desc = "Explain how red and white blood cells protect the human body in an engaging story."
-        st.session_state.current_nav = "Weave"
-        st.rerun()
-    if c2.button("🌲 Clockwork", use_container_width=True):
-        st.session_state.current_title = "The Clockwork Forest"
-        st.session_state.current_desc = "A young tinkerer discovers trees made of brass and amber that chime in the morning breeze."
-        st.session_state.current_nav = "Weave"
-        st.rerun()
-    st.markdown("---")
+        st.markdown("""
+        <div class="mobile-drawer-footer">
+            <div class="mob-foot-title">Story Weave v1.0.0</div>
+            <div class="mob-foot-sub">Developed by Kokala Sai Teja</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # Download Latest APK (v8a) right above Footer
-    st.markdown("#### 📱 Android Companion")
-    apk_v8_file = MEDIA_DIR / "app-arm64-v8a-release.apk"
-    if apk_v8_file.exists():
-        with open(apk_v8_file, "rb") as f_v8:
-            st.download_button(
-                label="📱 Download Latest APK (v8a • 35.6 MB)",
-                data=f_v8.read(),
-                file_name="StoryWeave-arm64-v8a-release.apk",
-                mime="application/vnd.android.package-archive",
-                use_container_width=True,
-                help="Download the latest v8a Android release APK (35.6 MB)"
-            )
+    # --------------------------------------------------
+    # DESKTOP / LAPTOP SIDEBAR VIEW (UNTOUCHED CURRENT UI/UX)
+    # --------------------------------------------------
+    with st.container(key="desktop_sidebar_box"):
+        st.image(str(LOGO_PATH) if LOGO_PATH.exists() else "https://via.placeholder.com/150", width=120)
+        st.markdown("### 📖 Story Weave")
+        st.caption("Fusing Emotion, Vision & Voice")
 
-    st.markdown("---")
-    # Sidebar Footer (Responsive, moves and collapses with navigation)
-    st.markdown("""
-    <div class="sidebar-fixed-footer">
-        <div style="font-weight: 700; font-size: 0.85rem; letter-spacing: 0.3px;">Story Weave v1.0.0</div>
-        <div style="font-weight: 500; font-size: 0.78rem; opacity: 0.85; margin-top: 2px;">Developed by Kokala Sai Teja</div>
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown("---")
+
+        # Custom Vector Day / Night Switch in Sidebar
+        st.markdown("#### 🌓 Theme Mode")
+        if st.button(" ", key="btn_side_theme"):
+            st.session_state.theme = "light" if is_dark else "dark"
+            time.sleep(1.0)
+            st.rerun()
+
+        st.markdown("---")
+
+        # Quick Presets (Always visible in Sidebar Navigation)
+        st.markdown("#### 💡 Quick Presets")
+        c1, c2 = st.columns(2)
+        if c1.button("🩸 RBC & WBC", use_container_width=True):
+            st.session_state.current_title = "RBC and WBC: Defenders of the Pulse"
+            st.session_state.current_desc = "Explain how red and white blood cells protect the human body in an engaging story."
+            st.session_state.current_nav = "Weave"
+            st.rerun()
+        if c2.button("🌲 Clockwork", use_container_width=True):
+            st.session_state.current_title = "The Clockwork Forest"
+            st.session_state.current_desc = "A young tinkerer discovers trees made of brass and amber that chime in the morning breeze."
+            st.session_state.current_nav = "Weave"
+            st.rerun()
+        st.markdown("---")
+
+        # Download Latest APK (v8a) right above Footer
+        st.markdown("#### 📱 Android Companion")
+        apk_v8_file = MEDIA_DIR / "app-arm64-v8a-release.apk"
+        if apk_v8_file.exists():
+            with open(apk_v8_file, "rb") as f_v8:
+                st.download_button(
+                    label="📱 Download Latest APK (v8a • 35.6 MB)",
+                    data=f_v8.read(),
+                    file_name="StoryWeave-arm64-v8a-release.apk",
+                    mime="application/vnd.android.package-archive",
+                    use_container_width=True,
+                    help="Download the latest v8a Android release APK (35.6 MB)"
+                )
+
+        st.markdown("---")
+        # Sidebar Footer (Responsive, moves and collapses with navigation)
+        st.markdown("""
+        <div class="sidebar-fixed-footer">
+            <div style="font-weight: 700; font-size: 0.85rem; letter-spacing: 0.3px;">Story Weave v1.0.0</div>
+            <div style="font-weight: 500; font-size: 0.78rem; opacity: 0.85; margin-top: 2px;">Developed by Kokala Sai Teja</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 # --------------------------------------------------
 # TOP NAV / HEADER (AUTO CLOSES SIDEBAR ON CLICK)
