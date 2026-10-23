@@ -593,7 +593,9 @@ div[data-testid="stMarkdownContainer"] pre code {{
 }}
 
 /* Top Navigation Bar Pill Buttons with High Contrast & Hover Bounce */
-div[data-testid="stHorizontalBlock"] div.stButton > button {{
+.st-key-btn_top_weave button,
+.st-key-btn_top_lib button,
+.st-key-btn_top_abt button {{
     padding: 8px 14px !important;
     font-size: 0.95rem !important;
     font-weight: 700 !important;
@@ -789,25 +791,61 @@ div[data-testid="stCheckbox"] label {{
     align-items: center !important;
 }}
 
-/* Unselected Checkbox Indicator: Clean Pure White in Light Mode, Sleek Slate in Dark Mode */
-div[data-testid="stCheckbox"] label > div:first-of-type,
-div[data-testid="stCheckbox"] div[class*="e1ap2qgk5"],
-div[data-baseweb="checkbox"] div {{
+/* Checkbox Styling: Single Clean High-Precision Indicator (No Native Black Box, No Duplicate Box) */
+div[data-testid="stCheckbox"] input[type="checkbox"] {{
+    opacity: 0 !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    z-index: 5 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+}}
+
+/* Completely hide label content container in collapsed checkboxes so ONLY ONE indicator exists */
+div[data-testid="stCheckbox"] label > div,
+div[data-baseweb="checkbox"] > div {{
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+    overflow: hidden !important;
+}}
+
+/* Exactly ONE Unselected Checkbox Indicator (The BaseWeb Span): Clean Pure White in Light Mode, Sleek Slate in Dark Mode */
+div[data-testid="stCheckbox"] label > span,
+div[data-baseweb="checkbox"] > span {{
     background: {'#1E293B' if is_dark else '#FFFFFF'} !important;
     background-color: {'#1E293B' if is_dark else '#FFFFFF'} !important;
-    border: 1.8px solid {'rgba(0, 229, 255, 0.5)' if is_dark else '#CBD5E1'} !important;
+    border: 1.8px solid {'rgba(0, 229, 255, 0.5)' if is_dark else '#94A3B8'} !important;
     border-radius: 6px !important;
-    width: 20px !important;
-    height: 20px !important;
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    max-width: 22px !important;
+    max-height: 22px !important;
     box-sizing: border-box !important;
-    box-shadow: {'0 2px 6px rgba(0,0,0,0.3)' if is_dark else '0 1px 3px rgba(0,0,0,0.06)'} !important;
+    box-shadow: {'0 2px 6px rgba(0,0,0,0.3)' if is_dark else '0 1px 3px rgba(0,0,0,0.08)'} !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    margin: 0 !important;
 }}
 
 /* Checked state */
-div[data-testid="stCheckbox"]:has(input:checked) label > div:first-of-type,
-div[data-testid="stCheckbox"]:has(input:checked) div[class*="e1ap2qgk5"],
-div[data-baseweb="checkbox"]:has(input:checked) div {{
+div[data-testid="stCheckbox"]:has(input:checked) label > span,
+div[data-baseweb="checkbox"]:has(input:checked) > span {{
     background: {'linear-gradient(135deg, #00E5FF, #D500F9)' if is_dark else '#0284C7'} !important;
     background-color: {'#00E5FF' if is_dark else '#0284C7'} !important;
     border-color: {'#00E5FF' if is_dark else '#0284C7'} !important;
@@ -815,10 +853,21 @@ div[data-baseweb="checkbox"]:has(input:checked) div {{
 }}
 
 /* Checkbox Hover */
-div[data-testid="stCheckbox"] label:hover > div:first-of-type,
-div[data-testid="stCheckbox"] label:hover div[class*="e1ap2qgk5"] {{
+div[data-testid="stCheckbox"] label:hover > span,
+div[data-baseweb="checkbox"]:hover > span {{
     border-color: {'#00E5FF' if is_dark else '#0284C7'} !important;
     box-shadow: 0 0 8px {'rgba(0, 229, 255, 0.45)' if is_dark else 'rgba(2, 132, 199, 0.25)'} !important;
+}}
+
+/* SVG checkmark inside indicator span */
+div[data-testid="stCheckbox"] label > span svg,
+div[data-baseweb="checkbox"] > span svg {{
+    display: block !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    color: #FFFFFF !important;
+    width: 14px !important;
+    height: 14px !important;
 }}
 
 /* Straight Header and Nav Alignment */
@@ -992,9 +1041,13 @@ button[kind="primary"]:hover,
 section[data-testid="stSidebar"] {{
     background-color: {'#0A0E18' if is_dark else '#FFFFFF'} !important;
     border-right: 1px solid {card_border} !important;
+    min-width: 300px !important;
 }}
 
 section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {{
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    padding-top: 1.5rem !important;
     padding-bottom: 55px !important;
 }}
 
@@ -1209,34 +1262,124 @@ footer, [data-testid="stFooter"] {{
 
 /* Desktop / Laptop (> 768px): Hide Mobile Drawer, Show Desktop Sidebar */
 @media (min-width: 769px) {{
-    .st-key-mobile_drawer_box {{
+    .st-key-mobile_drawer_box,
+    .st-key-mobile_drawer_box * {{
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
+        max-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
+        opacity: 0 !important;
         pointer-events: none !important;
     }}
     .st-key-desktop_sidebar_box {{
         display: block !important;
+    }}
+    /* Add 1-line space below headings 🌓 Theme Mode, 💡 Quick Presets, 📱 Android Companion on Laptop */
+    .st-key-desktop_sidebar_box h4 {{
+        margin-top: 10px !important;
+        margin-bottom: 0px !important;
+        padding-bottom: 14px !important;
+    }}
+    .st-key-desktop_sidebar_box div.stMarkdown:has(h4),
+    .st-key-desktop_sidebar_box [data-testid="stMarkdownContainer"]:has(h4) {{
+        margin-bottom: 12px !important;
+    }}
+    .st-key-desktop_sidebar_box div[data-testid="stHorizontalBlock"],
+    .st-key-desktop_sidebar_box div[data-testid="stDownloadButton"],
+    .st-key-desktop_sidebar_box .st-key-btn_side_theme {{
+        margin-top: 10px !important;
+    }}
+    .st-key-desktop_sidebar_box div[data-testid="stHorizontalBlock"]:has(.st-key-btn_desk_preset_rbc) {{
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 10px !important;
+        margin-top: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }}
+    .st-key-desktop_sidebar_box div[data-testid="stHorizontalBlock"]:has(.st-key-btn_desk_preset_rbc) > div {{
+        flex: 1 1 calc(50% - 5px) !important;
+        min-width: 0 !important;
+        width: calc(50% - 5px) !important;
+        max-width: calc(50% - 5px) !important;
+        box-sizing: border-box !important;
+    }}
+    .st-key-btn_desk_preset_rbc button,
+    .st-key-btn_desk_preset_clock button {{
+        background: {'rgba(255, 255, 255, 0.06)' if is_dark else '#FFFFFF'} !important;
+        background-color: {'rgba(255, 255, 255, 0.06)' if is_dark else '#FFFFFF'} !important;
+        color: {'#F8FAFC' if is_dark else '#1E293B'} !important;
+        -webkit-text-fill-color: {'#F8FAFC' if is_dark else '#1E293B'} !important;
+        border: 1px solid {'rgba(255, 255, 255, 0.18)' if is_dark else '#CBD5E1'} !important;
+        border-radius: 12px !important;
+        padding: 8px 6px !important;
+        min-height: 40px !important;
+        height: 40px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        box-shadow: {'0 2px 8px rgba(0,0,0,0.2)' if is_dark else '0 1px 4px rgba(0,0,0,0.04)'} !important;
+        transition: all 0.25s ease !important;
+    }}
+    .st-key-btn_desk_preset_rbc button *,
+    .st-key-btn_desk_preset_clock button * {{
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.80rem !important;
+        line-height: 1.2 !important;
+        letter-spacing: -0.15px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }}
+    .st-key-btn_desk_preset_rbc button:hover,
+    .st-key-btn_desk_preset_clock button:hover {{
+        border-color: {'#00E5FF' if is_dark else '#0284C7'} !important;
+        color: {'#00E5FF' if is_dark else '#0284C7'} !important;
+        -webkit-text-fill-color: {'#00E5FF' if is_dark else '#0284C7'} !important;
+        background: {'rgba(0, 229, 255, 0.12)' if is_dark else '#F0F9FF'} !important;
+        background-color: {'rgba(0, 229, 255, 0.12)' if is_dark else '#F0F9FF'} !important;
+        transform: translateY(-2px) !important;
+    }}
+    .sidebar-heading-space {{
+        height: 14px !important;
+        width: 100% !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }}
 }}
 
 /* Mobile & Touch Devices (<= 768px): Match Image 2 Drawer, Hide Desktop Sidebar, Fix Checkbox */
 @media (max-width: 768px) {{
     /* Hide Desktop Sidebar */
-    .st-key-desktop_sidebar_box {{
+    .st-key-desktop_sidebar_box,
+    .st-key-desktop_sidebar_box * {{
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
+        max-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
+        opacity: 0 !important;
         pointer-events: none !important;
     }}
 
     /* Show Mobile Drawer */
     .st-key-mobile_drawer_box {{
         display: block !important;
+    }}
+
+    /* Mobile Sidebar Content Padding for Breathing Room */
+    section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {{
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+        padding-top: 1.2rem !important;
     }}
 
     /* Mobile Drawer Header (Image 2) */
@@ -1360,6 +1503,119 @@ footer, [data-testid="stFooter"] {{
         margin-top: 4px !important;
     }}
 
+    /* Mobile Drawer Quick Presets & Android Companion (Matches User Reference Image) */
+    .mobile-drawer-section-heading {{
+        font-family: 'Outfit', sans-serif !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
+        color: {'#FFFFFF' if is_dark else '#1E293B'} !important;
+        letter-spacing: 0.2px !important;
+        margin-top: 10px !important;
+        margin-bottom: 8px !important;
+        display: block !important;
+        width: 100% !important;
+    }}
+
+    /* Force Quick Presets columns into a strict 2-column row on mobile */
+    .st-key-mobile_drawer_box div[data-testid="stHorizontalBlock"]:has(.st-key-btn_mob_preset_rbc) {{
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 10px !important;
+        margin-top: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }}
+
+    .st-key-mobile_drawer_box div[data-testid="stHorizontalBlock"]:has(.st-key-btn_mob_preset_rbc) > div,
+    .st-key-mobile_drawer_box div[data-testid="stHorizontalBlock"]:has(.st-key-btn_mob_preset_rbc) div[data-testid="column"],
+    .st-key-mobile_drawer_box div[data-testid="stHorizontalBlock"]:has(.st-key-btn_mob_preset_rbc) div[data-testid="stColumn"] {{
+        flex: 1 1 calc(50% - 5px) !important;
+        min-width: 0 !important;
+        width: calc(50% - 5px) !important;
+        max-width: calc(50% - 5px) !important;
+        box-sizing: border-box !important;
+    }}
+
+    .st-key-btn_mob_preset_rbc button,
+    .st-key-btn_mob_preset_clock button {{
+        background: {'rgba(255, 255, 255, 0.06)' if is_dark else '#FFFFFF'} !important;
+        background-color: {'rgba(255, 255, 255, 0.06)' if is_dark else '#FFFFFF'} !important;
+        color: {'#F8FAFC' if is_dark else '#1E293B'} !important;
+        -webkit-text-fill-color: {'#F8FAFC' if is_dark else '#1E293B'} !important;
+        border: 1px solid {'rgba(255, 255, 255, 0.18)' if is_dark else '#CBD5E1'} !important;
+        border-radius: 12px !important;
+        padding: 7px 6px !important;
+        min-height: 40px !important;
+        height: 40px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        box-shadow: {'0 2px 8px rgba(0,0,0,0.2)' if is_dark else '0 1px 4px rgba(0,0,0,0.04)'} !important;
+        transition: all 0.25s ease !important;
+    }}
+
+    .st-key-btn_mob_preset_rbc button *,
+    .st-key-btn_mob_preset_clock button * {{
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.78rem !important;
+        line-height: 1.2 !important;
+        letter-spacing: -0.15px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }}
+
+    .st-key-btn_mob_apk_dl,
+    .st-key-mobile_drawer_box .stDownloadButton,
+    .st-key-mobile_drawer_box .stLinkButton {{
+        margin-top: 8px !important;
+        margin-bottom: 12px !important;
+        width: 100% !important;
+    }}
+
+    .st-key-btn_mob_apk_dl button,
+    .st-key-mobile_drawer_box .stDownloadButton > button,
+    .st-key-mobile_drawer_box .stLinkButton > a {{
+        background: {'rgba(255, 255, 255, 0.05)' if is_dark else '#FFFFFF'} !important;
+        background-color: {'rgba(255, 255, 255, 0.05)' if is_dark else '#FFFFFF'} !important;
+        color: {'#F8FAFC' if is_dark else '#1E293B'} !important;
+        -webkit-text-fill-color: {'#F8FAFC' if is_dark else '#1E293B'} !important;
+        border: 1px solid {'rgba(255, 255, 255, 0.16)' if is_dark else '#CBD5E1'} !important;
+        border-radius: 14px !important;
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        padding: 12px 14px !important;
+        text-align: center !important;
+        line-height: 1.35 !important;
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: {'0 2px 8px rgba(0,0,0,0.2)' if is_dark else '0 1px 4px rgba(0,0,0,0.04)'} !important;
+        transition: all 0.25s ease !important;
+    }}
+
+    .st-key-btn_mob_preset_rbc button:hover,
+    .st-key-btn_mob_preset_clock button:hover,
+    .st-key-btn_mob_apk_dl button:hover,
+    .st-key-mobile_drawer_box .stDownloadButton > button:hover,
+    .st-key-mobile_drawer_box .stLinkButton > a:hover {{
+        border-color: {'#00E5FF' if is_dark else '#0284C7'} !important;
+        color: {'#00E5FF' if is_dark else '#0284C7'} !important;
+        -webkit-text-fill-color: {'#00E5FF' if is_dark else '#0284C7'} !important;
+        background: {'rgba(0, 229, 255, 0.12)' if is_dark else '#F0F9FF'} !important;
+        background-color: {'rgba(0, 229, 255, 0.12)' if is_dark else '#F0F9FF'} !important;
+        transform: translateY(-2px) !important;
+    }}
+
     /* Requirement 4: Top Navigation Buttons Disappear on Mobile */
     .st-key-btn_top_weave,
     .st-key-btn_top_lib,
@@ -1402,7 +1658,7 @@ footer, [data-testid="stFooter"] {{
         padding-bottom: 2rem !important;
     }}
 
-    /* Requirement 3: Smooth Checkbox Clicking on Mobile */
+    /* Requirement 3: Smooth Checkbox Clicking on Mobile with Perfect Alignment */
     div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) {{
         display: flex !important;
         flex-direction: row !important;
@@ -1410,43 +1666,44 @@ footer, [data-testid="stFooter"] {{
         align-items: flex-start !important;
         gap: 8px !important;
         width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }}
 
-    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div {{
-        min-width: unset !important;
-    }}
-
-    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div:first-child {{
-        flex: 0 0 46px !important;
-        min-width: 46px !important;
-        width: 46px !important;
-        max-width: 46px !important;
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div:first-child,
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div[data-testid="column"]:first-child,
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div[data-testid="stColumn"]:first-child {{
+        flex: 0 0 38px !important;
+        min-width: 38px !important;
+        width: 38px !important;
+        max-width: 38px !important;
         display: flex !important;
         align-items: flex-start !important;
         justify-content: center !important;
-        padding-top: 4px !important;
+        padding-top: 8px !important;
+        box-sizing: border-box !important;
     }}
 
     div[class*="st-key-chk_story_"] {{
-        width: 46px !important;
-        height: 46px !important;
-        min-height: 46px !important;
+        width: 38px !important;
+        height: 38px !important;
+        min-height: 38px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
     }}
 
     div[class*="st-key-chk_story_"] div[data-testid="stCheckbox"] {{
-        width: 46px !important;
-        height: 46px !important;
+        width: 38px !important;
+        height: 38px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
     }}
 
     div[class*="st-key-chk_story_"] div[data-testid="stCheckbox"] label {{
-        width: 46px !important;
-        height: 46px !important;
+        width: 38px !important;
+        height: 38px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -1454,24 +1711,40 @@ footer, [data-testid="stFooter"] {{
         touch-action: manipulation !important;
         user-select: none !important;
         -webkit-tap-highlight-color: transparent !important;
+        position: relative !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }}
 
     div[class*="st-key-chk_story_"] div[data-testid="stCheckbox"] input[type="checkbox"] {{
-        width: 22px !important;
-        height: 22px !important;
+        width: 100% !important;
+        height: 100% !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        margin: 0 !important;
         cursor: pointer !important;
         touch-action: manipulation !important;
+        z-index: 5 !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
     }}
 
-    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div:nth-child(2) {{
-        flex: 1 1 calc(100% - 54px) !important;
-        width: calc(100% - 54px) !important;
-        max-width: calc(100% - 54px) !important;
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div:last-child,
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div[data-testid="column"]:last-child,
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div[data-testid="stColumn"]:last-child {{
+        flex: 1 1 calc(100% - 46px) !important;
+        width: calc(100% - 46px) !important;
+        max-width: calc(100% - 46px) !important;
         min-width: 0 !important;
+        box-sizing: border-box !important;
     }}
 
-    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div:nth-child(2) div[data-testid="stExpander"] {{
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div:last-child div[data-testid="stExpander"],
+    div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-chk_story_"]) > div[data-testid="column"]:last-child div[data-testid="stExpander"] {{
         width: 100% !important;
+        box-sizing: border-box !important;
     }}
 
     /* Expander Content Responsiveness on Mobile: Stack text and image vertically */
@@ -1513,43 +1786,103 @@ footer, [data-testid="stFooter"] {{
 # --------------------------------------------------
 # JAVASCRIPT: AUTO-CLOSE SIDEBAR ON TOP NAV CLICKS
 # --------------------------------------------------
+# JAVASCRIPT: AUTO-CLOSE SIDEBAR ON ANY NAV CLICK
+# --------------------------------------------------
 should_close_sidebar = st.session_state.pop("close_sidebar_now", False)
+if should_close_sidebar:
+    st.session_state["nav_seq"] = st.session_state.get("nav_seq", 0) + 1
 close_js_flag = "true" if should_close_sidebar else "false"
+nav_sync_token = f"{close_js_flag}_{st.session_state.get('nav_seq', 0)}"
 
 components.html(f"""
+<!-- nav_sync_token: {nav_sync_token} -->
 <script>
 (function() {{
     const doc = window.parent.document;
+
+    function isSidebarOpen() {{
+        const sb = doc.querySelector('[data-testid="stSidebar"]');
+        if (!sb) return false;
+        const expanded = sb.getAttribute('aria-expanded');
+        if (expanded === 'true') return true;
+        if (expanded === 'false') return false;
+        try {{
+            const win = doc.defaultView || window.parent;
+            const style = win.getComputedStyle(sb);
+            if (style.transform && style.transform.includes('-')) return false;
+            if (style.visibility === 'hidden' || style.display === 'none') return false;
+        }} catch(e) {{}}
+        return true;
+    }}
+
     function collapseIfOpen() {{
+        if (!isSidebarOpen()) return;
         const collapseBtn = doc.querySelector('div[data-testid="stSidebarCollapseButton"] button')
-            || doc.querySelector('button[aria-label="Collapse sidebar"]');
+            || doc.querySelector('[data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"]')
+            || doc.querySelector('button[aria-label="Collapse sidebar"]')
+            || doc.querySelector('button[aria-label="Close sidebar"]')
+            || doc.querySelector('[data-testid="stSidebar"] button:has(svg)');
         if (collapseBtn) {{
             collapseBtn.click();
         }}
     }}
 
+    // Multi-retry collapse when requested by session state
     if ({close_js_flag}) {{
         collapseIfOpen();
+        setTimeout(collapseIfOpen, 60);
+        setTimeout(collapseIfOpen, 180);
+        setTimeout(collapseIfOpen, 350);
+    }}
+
+    // Global Click & Touch Listeners: Instantly close sidebar whenever any nav or drawer button is tapped
+    if (!doc._storyWeaveNavAutoCloseAttached) {{
+        doc._storyWeaveNavAutoCloseAttached = true;
+
+        function handleAutoClose(e) {{
+            if (!isSidebarOpen()) return;
+
+            // Never intercept theme toggle or collapse button itself
+            if (e.target.closest('.st-key-btn_mob_theme') || e.target.closest('div[data-testid="stSidebarCollapseButton"]')) {{
+                return;
+            }}
+
+            const clickedInSidebar = e.target.closest('[data-testid="stSidebar"]');
+            const clickedTopNav = e.target.closest('.st-key-btn_top_weave, .st-key-btn_top_lib, .st-key-btn_top_abt');
+            const isClickable = e.target.closest('button, a, [role="button"]');
+
+            if (isClickable && (clickedInSidebar || clickedTopNav)) {{
+                setTimeout(collapseIfOpen, 70);
+                setTimeout(collapseIfOpen, 220);
+            }}
+        }}
+
+        doc.addEventListener('click', handleAutoClose, true);
+        doc.addEventListener('touchend', handleAutoClose, true);
     }}
 
     function attachNavListeners() {{
         const selectors = [
             '.st-key-btn_top_weave button', '.st-key-btn_top_lib button', '.st-key-btn_top_abt button',
-            '.st-key-btn_mob_weave button', '.st-key-btn_mob_lib button', '.st-key-btn_mob_abt button'
+            '.st-key-btn_mob_weave button', '.st-key-btn_mob_lib button', '.st-key-btn_mob_abt button',
+            '.st-key-btn_mob_preset_rbc button', '.st-key-btn_mob_preset_clock button',
+            '.st-key-btn_mob_apk_dl button'
         ];
         selectors.forEach(function(sel) {{
             const btn = doc.querySelector(sel);
             if (btn && !btn.dataset.sidebarAttached) {{
                 btn.dataset.sidebarAttached = "true";
                 btn.addEventListener('click', function() {{
-                    collapseIfOpen();
+                    if (isSidebarOpen()) {{
+                        setTimeout(collapseIfOpen, 70);
+                    }}
                 }});
             }}
         }});
     }}
     attachNavListeners();
-    setTimeout(attachNavListeners, 400);
-    setTimeout(attachNavListeners, 1000);
+    setTimeout(attachNavListeners, 300);
+    setTimeout(attachNavListeners, 800);
 
     function pinFooterToBottom() {{
         const el = doc.querySelector('.st-key-footer_block');
@@ -1668,6 +2001,53 @@ with st.sidebar:
                 time.sleep(0.3)
                 st.rerun()
 
+        # Mobile Quick Presets (Matches User Reference Image)
+        st.markdown("""
+        <div class="mobile-drawer-divider"></div>
+        <div class="mobile-drawer-section-heading">💡 Quick Presets</div>
+        """, unsafe_allow_html=True)
+
+        c_mob_p1, c_mob_p2 = st.columns(2)
+        with c_mob_p1:
+            if st.button("🩸 RBC & WBC", key="btn_mob_preset_rbc", use_container_width=True):
+                st.session_state.current_title = "RBC and WBC: Defenders of the Pulse"
+                st.session_state.current_desc = "Explain how red and white blood cells protect the human body in an engaging story."
+                st.session_state.current_nav = "Weave"
+                st.session_state.close_sidebar_now = True
+                st.rerun()
+        with c_mob_p2:
+            if st.button("🌲 Clockwork", key="btn_mob_preset_clock", use_container_width=True):
+                st.session_state.current_title = "The Clockwork Forest"
+                st.session_state.current_desc = "A young tinkerer discovers trees made of brass and amber that chime in the morning breeze."
+                st.session_state.current_nav = "Weave"
+                st.session_state.close_sidebar_now = True
+                st.rerun()
+
+        # Mobile Android Companion (Matches User Reference Image)
+        st.markdown("""
+        <div class="mobile-drawer-divider"></div>
+        <div class="mobile-drawer-section-heading">📱 Android Companion</div>
+        """, unsafe_allow_html=True)
+
+        apk_v8_file = MEDIA_DIR / "app-arm64-v8a-release.apk"
+        if apk_v8_file.exists():
+            with open(apk_v8_file, "rb") as f_v8:
+                st.download_button(
+                    label="📱 Download Latest APK (v8a • 35.6 MB)",
+                    data=f_v8.read(),
+                    file_name="StoryWeave-arm64-v8a-release.apk",
+                    mime="application/vnd.android.package-archive",
+                    use_container_width=True,
+                    key="btn_mob_apk_dl",
+                    help="Download the latest v8a Android release APK (35.6 MB)"
+                )
+        else:
+            st.link_button(
+                "📱 Download Latest APK (v8a • 35.6 MB)",
+                "https://github.com/Kokalasaiteja/Story-Weave-Fusing-Emotion-Vision-and-Voice-for-Intelligent-Storytelling/releases",
+                use_container_width=True
+            )
+
         st.markdown("""
         <div class="mobile-drawer-footer">
             <div class="mob-foot-title">Story Weave v1.0.0</div>
@@ -1676,7 +2056,7 @@ with st.sidebar:
         """, unsafe_allow_html=True)
 
     # --------------------------------------------------
-    # DESKTOP / LAPTOP SIDEBAR VIEW (UNTOUCHED CURRENT UI/UX)
+    # DESKTOP / LAPTOP SIDEBAR VIEW (UNTOUCHED CURRENT UI/UX WITH 1-LINE SPACING)
     # --------------------------------------------------
     with st.container(key="desktop_sidebar_box"):
         st.image(str(LOGO_PATH) if LOGO_PATH.exists() else "https://via.placeholder.com/150", width=120)
@@ -1685,8 +2065,9 @@ with st.sidebar:
 
         st.markdown("---")
 
-        # Custom Vector Day / Night Switch in Sidebar
+        # Custom Vector Day / Night Switch in Sidebar with 1-line space
         st.markdown("#### 🌓 Theme Mode")
+        st.markdown('<div class="sidebar-heading-space"></div>', unsafe_allow_html=True)
         if st.button(" ", key="btn_side_theme"):
             st.session_state.theme = "light" if is_dark else "dark"
             time.sleep(1.0)
@@ -1694,23 +2075,25 @@ with st.sidebar:
 
         st.markdown("---")
 
-        # Quick Presets (Always visible in Sidebar Navigation)
+        # Quick Presets (Always visible in Sidebar Navigation) with 1-line space
         st.markdown("#### 💡 Quick Presets")
+        st.markdown('<div class="sidebar-heading-space"></div>', unsafe_allow_html=True)
         c1, c2 = st.columns(2)
-        if c1.button("🩸 RBC & WBC", use_container_width=True):
+        if c1.button("🩸 RBC & WBC", key="btn_desk_preset_rbc", use_container_width=True):
             st.session_state.current_title = "RBC and WBC: Defenders of the Pulse"
             st.session_state.current_desc = "Explain how red and white blood cells protect the human body in an engaging story."
             st.session_state.current_nav = "Weave"
             st.rerun()
-        if c2.button("🌲 Clockwork", use_container_width=True):
+        if c2.button("🌲 Clockwork", key="btn_desk_preset_clock", use_container_width=True):
             st.session_state.current_title = "The Clockwork Forest"
             st.session_state.current_desc = "A young tinkerer discovers trees made of brass and amber that chime in the morning breeze."
             st.session_state.current_nav = "Weave"
             st.rerun()
         st.markdown("---")
 
-        # Download Latest APK (v8a) right above Footer
+        # Download Latest APK (v8a) right above Footer with 1-line space
         st.markdown("#### 📱 Android Companion")
+        st.markdown('<div class="sidebar-heading-space"></div>', unsafe_allow_html=True)
         apk_v8_file = MEDIA_DIR / "app-arm64-v8a-release.apk"
         if apk_v8_file.exists():
             with open(apk_v8_file, "rb") as f_v8:
